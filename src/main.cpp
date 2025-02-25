@@ -1,13 +1,11 @@
 #include <Arduino.h>
+#include "power_control.h"
 
-void setup() {
-  Serial.begin(115200);
+void setup () {
+  Serial.begin(9600);
+  setup_power_control();
 }
 
-int num = 0;
-
-void loop() {
-  num += 1;
-  Serial.println(num);
-  delay(1000);
+void loop () {
+  
 }
