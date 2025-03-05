@@ -1,11 +1,13 @@
 #include <Arduino.h>
-#include "power_control.h"
+#include "WifiControl.h"
+#include "PowerControl.h"
+
 
 void setup () {
   Serial.begin(9600);
-  setup_power_control();
+  initWifi();
 }
 
 void loop () {
-  
+  server.handleClient();
 }
