@@ -30,7 +30,6 @@ void connectToWifi() {
     
 }
 
-
 void handleData() {
     if(server.arg("ssid") && server.arg("password")) {
         ssidSaved = server.arg("ssid");
@@ -38,7 +37,12 @@ void handleData() {
         writeMemory();
         connectToWifi();
         server.send(200, "text/plain", "Datos recibidos correctamente");
-    } else {
+    } else if (server.arg("tempSP")) {
+
+        int tempSP = server.arg("tempSP").toInt(); 
+
+    } 
+    else {
         server.send(400, "text/plain", "No se recibieron datos.");
     }
 }

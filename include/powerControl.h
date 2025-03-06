@@ -5,7 +5,7 @@
 
 const int zeroCrossPin = 2;
 const int triacPin = 3;
-int delayTime;
+int delayTime = 0;
 
 void triacTriger(){
     digitalWrite(triacPin, HIGH);
