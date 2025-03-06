@@ -7,7 +7,7 @@ const int zeroCrossPin = 2;
 const int triacPin = 3;
 int delayTime;
 
-void triac_triger(){
+void triacTriger(){
     digitalWrite(triacPin, HIGH);
     delayMicroseconds(100);
     digitalWrite(triacPin, LOW);
@@ -15,10 +15,10 @@ void triac_triger(){
 
 void zeroCrossISR () {
     delayMicroseconds(delayTime);
-    triac_triger();
+    triacTriger();
 }
 
-void setup_power_control(){
+void setupPowerControl(){
     pinMode(triacPin, OUTPUT);
     attachInterrupt(digitalPinToInterrupt(zeroCrossPin), zeroCrossISR, RISING);
 }
