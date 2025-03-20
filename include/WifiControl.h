@@ -71,7 +71,7 @@ void initAP() {
 
 void initWiFi() {
     WiFi.mode(WIFI_AP_STA); 
-    if(readMemory()) connectToWiFi(ssidSaved, passwordSaved); 
+    if (readMemory()) connectToWiFi(ssidSaved, passwordSaved); 
     initAP();
 }
 
@@ -81,14 +81,14 @@ void handleRoot() {
 }
 
 void handleData() {
-    if(server.arg("ssid") && server.arg("password")) {
+    if (server.hasArg("ssid") && server.hasArg("password")) {
         
         String ssid = server.arg("ssid");
         String password = server.arg("password");
 
         connectToWiFi(ssid, password);
 
-        if(connectedTest){
+        if (connectedTest) {
             ssidSaved = ssid;
             passwordSaved = password;
             writeMemory();
@@ -96,13 +96,10 @@ void handleData() {
         } else {
             server.send(400, "text/plain", "No se recibieron datos.");
         }
-    
-    } else if (server.arg("tempSP")) {
+    } else if (server.hasArg("tempSP")) {
         int tempSP = server.arg("tempSP").toInt();
     } else {
         server.send(400, "text/plain", "No se recibieron datos.");
     }
 }
-
-
 #endif
