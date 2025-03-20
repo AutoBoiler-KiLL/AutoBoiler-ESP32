@@ -23,7 +23,7 @@ bool readMemory() {
     // for (int i = 0; i < EEPROM_SIZE; i++) {
     //     EEPROM.write(i, 0xFF);
     // }
-    // EEPROM.commit();
+    EEPROM.commit();
    
     return (ssidSaved.length() != 0) && (passwordSaved.length() != 0);
 }

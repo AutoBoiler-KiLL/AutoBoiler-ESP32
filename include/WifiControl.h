@@ -12,6 +12,7 @@ void handleRoot();
 void handleData();
 
 bool connected = false;
+bool connectedTest = false;
 WebServer server(80);
 
 const String SSID() {
@@ -35,10 +36,10 @@ String getLocalNetworkHostname() {
 }
 
 /// @brief Connect to the WiFi network using the SSID and password saved in the EEPROM, with a timeout of 10 seconds.
-void connectToWiFi() {
+void connectToWiFi(String ssid, String password) {
     Serial.print("Connecting to WiFi");
 
-    WiFi.begin(ssidSaved.c_str(), passwordSaved.c_str());
+    WiFi.begin(ssid.c_str(), password.c_str());
 
     unsigned long startTime = millis();
     const unsigned long timeout = 10000;
@@ -48,9 +49,10 @@ void connectToWiFi() {
         delay(500);
     }
 
-    connected = WiFi.status() == WL_CONNECTED;
+    connectedTest = WiFi.status() == WL_CONNECTED;
 
-    if (connected) {
+    if (connectedTest) {
+        connected = true;
         Serial.println("\nConnected to WiFi!");
         Serial.print("IP: ");
         Serial.println(WiFi.localIP());
@@ -69,29 +71,35 @@ void initAP() {
 
 void initWiFi() {
     WiFi.mode(WIFI_AP_STA); 
-    if(readMemory()) connectToWiFi(); 
+    if (readMemory()) connectToWiFi(ssidSaved, passwordSaved); 
     initAP();
 }
 
 // MARK: Server Routes
-
 void handleRoot() {
     server.send(200, "text/plain", ssidSaved + " " + passwordSaved + " "+ String(connected)) ;
 }
 
 void handleData() {
-    if(server.arg("ssid") && server.arg("password")) {
-        ssidSaved = server.arg("ssid");
-        passwordSaved = server.arg("password");
-        writeMemory();
-        connectToWiFi();
-        server.send(200, "text/plain", "Datos recibidos correctamente");
-    } else if (server.arg("tempSP")) {
+    if (server.hasArg("ssid") && server.hasArg("password")) {
+        
+        String ssid = server.arg("ssid");
+        String password = server.arg("password");
+
+        connectToWiFi(ssid, password);
+
+        if (connectedTest) {
+            ssidSaved = ssid;
+            passwordSaved = password;
+            writeMemory();
+            server.send(200, "text/plain", "Datos recibidos correctamente");
+        } else {
+            server.send(400, "text/plain", "No se recibieron datos.");
+        }
+    } else if (server.hasArg("tempSP")) {
         int tempSP = server.arg("tempSP").toInt();
     } else {
         server.send(400, "text/plain", "No se recibieron datos.");
     }
 }
-
-
 #endif
