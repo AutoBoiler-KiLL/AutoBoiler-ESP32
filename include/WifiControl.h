@@ -6,7 +6,7 @@
 #include <WebServer.h>
 
 #include "MemoryControl.h"
-#include "Kill.h"
+#include "KiLL.h"
 
 void handleRoot();
 void handleData();

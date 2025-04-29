@@ -28,7 +28,7 @@ bool readMemory() {
     return (ssidSaved.length() != 0) && (passwordSaved.length() != 0);
 }
 
-/// @brief Wrties the SSID and password to the EEPROM
+/// @brief Writes the SSID and password to the EEPROM
 /// @return True if the SSID and password were written successfully, false otherwise
 bool writeMemory() {
     EEPROM.writeString(SSID_ADDR, ssidSaved);
