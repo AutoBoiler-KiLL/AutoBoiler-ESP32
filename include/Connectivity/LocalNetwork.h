@@ -132,7 +132,7 @@ void setupLocalServer() {
     });
 
     // Root to reset the ESP32 to factory settings, checking espId and appId are correct
-    localServer.on("kill_reset_factory", HTTP_POST, []() {
+    localServer.on("/kill_reset_factory", HTTP_POST, []() {
         if (!localServer.hasArg("plain")) {
             Serial.println("[LocalNetwork] Error: No data on reset");
             localServer.send(400, "application/json", "{\"error\": \"No Data\"}");
