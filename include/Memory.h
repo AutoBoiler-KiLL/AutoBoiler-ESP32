@@ -4,16 +4,16 @@
 #include <EEPROM.h>
 
 /// @brief Defines the size of the EEPROM
-const int EEPROM_SIZE = 250; 
+const uint8_t EEPROM_SIZE = 250; 
 
 /// @brief Defines the address where the SSID will be stored
-const int SSID_ADDRESS = 0;
+const uint8_t SSID_ADDRESS = 0;
 /// @brief Defines the address where the password will be stored
-const int PASS_ADDRESS = 75;
+const uint8_t PASS_ADDRESS = 75;
 /// @brief Defines the address where the app id will be stored
-const int APP_ID_ADDRESS = 150;
+const uint8_t APP_ID_ADDRESS = 150;
 /// @brief Defines the address where the temperature will be stored
-const int TEMPERATURE_ADDRESS = 200;
+const uint8_t TEMPERATURE_ADDRESS = 200;
 
 /// @brief Returns the SSID stored in the EEPROM
 String memorySSID() {
