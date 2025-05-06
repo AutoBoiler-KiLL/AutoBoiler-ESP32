@@ -1,16 +1,17 @@
 #include <Arduino.h>
 
-#include "WifiControl.h"
-#include "PowerControl.h"
+#include "Connectivity/GlobalNetwork.h"
 #include "KiLL.h"
 
-void setup () {
+void setup() {
   Serial.begin(115200);
   pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
-  initWiFi();
+  setupLocalNetwork();
+  WiFi.onEvent(onWiFiEvent);
 }
 
-void loop () {
-  server.handleClient();
+void loop() {
+  localServer.handleClient();
   checkForFactoryReset();
+  tryReconnectWiFi(); 
 }

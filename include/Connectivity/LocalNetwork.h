@@ -26,10 +26,29 @@ const String getLocalNetworkHostname() {
     return "http://kill-" + espId() + ".local/";
 }
 
+/// @brief Initializes the WiFi Access Point
 void initializeWiFiAccessPoint() {
     WiFi.softAP(SSID());
     Serial.println("[LocalNetwork] WiFi Access Point started");
     Serial.println("[LocalNetwork] IP Address: " + WiFi.softAPIP().toString());
+}
+
+/// @brief Stops the WiFi Access Point
+void stopWiFiAccessPoint() {
+    WiFi.softAPdisconnect(true);
+    Serial.println("[LocalNetwork] WiFi Access Point stopped");
+}
+
+/// @brief Starts the local web server
+void startLocalServer() {
+    localServer.begin();
+    Serial.println("[LocalNetwork] Local server started");
+}
+
+/// @brief Stops the local web server
+void stopLocalServer() {
+    localServer.stop();
+    Serial.println("[LocalNetwork] Local server stopped");
 }
 
 /// @brief Tries to set up the ESP32 to be accessible on the local network.
@@ -171,6 +190,7 @@ void setupLocalServer() {
             localServer.send(200, "application/json", "{\"status\": \"OK\"}");
         } else if (command == "turn_off") {
             // TODO: Implement turn off command
+            // turnOff();
             Serial.println("[LocalNetwork] Command: Turn off");
             localServer.send(200, "application/json", "{\"status\": \"OK\"}");
         } else if (command == "set_temperature") {
@@ -193,8 +213,7 @@ void setupLocalServer() {
         }
     });
 
-    localServer.begin();
-    Serial.println("[LocalNetwork] Local server started");
+    startLocalServer();
 }
 
 #endif
