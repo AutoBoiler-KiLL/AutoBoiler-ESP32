@@ -45,47 +45,80 @@ void setupLocalNetwork() {
 void setupLocalServer() {
     Serial.println("[LocalNetwork] Setting up local server");
 
-    // Root to setup the KiLL
-    localServer.on("/setup", HTTP_POST, []() {
-        if (localServer.hasArg("plain")) {
-            String json = localServer.arg("plain");
-            StaticJsonDocument<256> document;
-            DeserializationError error = deserializeJson(document, json);
-
-            if (error) {
-                Serial.println("[LocalNetwork] Error parsing JSON");
-                localServer.send(400, "application/json", "{\"error\": \"Invalid Data\"}");
-                return;
-            }
-
-            String ssid = document["ssid"] | "";
-            String password = document["password"] | "";
-            String appId = document["appId"] | "";
-
-            if (ssid.length() == 0 || password.length() == 0 || appId.length() == 0) {
-                Serial.println("[LocalNetwork] Error: Missing data");
-                localServer.send(400, "application/json", "{\"error\": \"Missing Data\"}");
-                return;
-            }
-
-            Serial.println("[LocalNetwork] Received data: SSID: " + ssid + ", Password: " + password + ", App ID: " + appId);
-
-            localServer.send(200, "application/json", "{\"status\": \"OK\"}");
-            writeMemory(ssid, password, appId);
-        } else {
-            Serial.println("[LocalNetwork] Error: No data");
-            localServer.send(400, "application/json", "{\"error\": \"No Data\"}");
-        }
-    });
-
-    localServer.on("kill_reset_factory", HTTP_GET, []() {
-        Serial.println("[LocalNetwork] Resetting to factory settings");
-        localServer.send(200, "application/json", "{\"status\": \"OK\"}");
-        resetToFactorySettings();
-    });
-
+    // Root to check if the ESP32 is reachable
     localServer.on("/", HTTP_GET, []() {
         localServer.send(200, "text/plain", "KiLL");
+    });
+
+    // Root for not found
+    localServer.onNotFound([]() {
+        Serial.println("[LocalNetwork] Error: Not found");
+        localServer.send(404, "text/plain", "Not found");
+    });
+
+    // Root to setup the KiLL
+    localServer.on("/setup", HTTP_POST, []() {
+        if (!localServer.hasArg("plain")) {
+            Serial.println("[LocalNetwork] Error: No data on setup");
+            localServer.send(400, "application/json", "{\"error\": \"No Data\"}");
+            return;
+        }
+
+        String json = localServer.arg("plain");
+        StaticJsonDocument<256> document;
+        DeserializationError error = deserializeJson(document, json);
+
+        if (error) {
+            Serial.println("[LocalNetwork] Error parsing data on setup: " + String(error.c_str()));
+            localServer.send(400, "application/json", "{\"error\": \"Invalid Data\"}");
+            return;
+        }
+
+        String ssid = document["ssid"] | "";
+        String password = document["password"] | "";
+        String appId = document["appId"] | "";
+
+        if (ssid.length() == 0 || password.length() == 0 || appId.length() == 0) {
+            Serial.println("[LocalNetwork] Error: Missing data on setup. SSID: " + ssid + ", Password: " + password + ", App ID: " + appId);
+            localServer.send(400, "application/json", "{\"error\": \"Missing Data\"}");
+            return;
+        }
+
+        Serial.println("[LocalNetwork] Received data on setup: SSID: " + ssid + ", Password: " + password + ", App ID: " + appId);
+
+        localServer.send(200, "application/json", "{\"status\": \"OK\"}");
+        writeMemory(ssid, password, appId);
+    });
+
+    // Root to reset the ESP32 to factory settings, checking espId and appId are correct
+    localServer.on("kill_reset_factory", HTTP_POST, []() {
+        if (!localServer.hasArg("plain")) {
+            Serial.println("[LocalNetwork] Error: No data on reset");
+            localServer.send(400, "application/json", "{\"error\": \"No Data\"}");
+            return;
+        }
+
+        String json = localServer.arg("plain");
+        StaticJsonDocument<256> document;
+        DeserializationError error = deserializeJson(document, json);
+
+        if (error) {
+            Serial.println("[LocalNetwork] Error parsing data on reset: " + String(error.c_str()));
+            localServer.send(400, "application/json", "{\"error\": \"Invalid Data\"}");
+            return;
+        }
+
+        String receivedEspId = document["espId"] | "";
+        String appId = document["appId"] | "";
+        
+        if (receivedEspId != espId() || appId != memoryAppId()) {
+            Serial.println("[LocalNetwork] Error: Invalid espId or appId on reset. ESP ID: " + receivedEspId + ", App ID: " + appId);
+            localServer.send(400, "application/json", "{\"error\": \"Invalid Data\"}");
+            return;
+        }
+
+        localServer.send(200, "application/json", "{\"status\": \"OK\"}");
+        resetToFactorySettings();
     });
 
     localServer.begin();
