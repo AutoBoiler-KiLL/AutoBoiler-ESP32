@@ -3,6 +3,9 @@
 
 #include "Memory.h"
 
+const int MINIMUM_TEMPERATURE = 25;
+const int MAXIMUM_TEMPERATURE = 45;
+
 /// @brief Get the ESP32's unique identifier (given in the Espressif factory).
 /// This will always be the same for a given ESP32, no matter how many times it is flashed.
 /// @return A String containing the ESP32's unique ID. Example: "5CCF7F0D3A4A"

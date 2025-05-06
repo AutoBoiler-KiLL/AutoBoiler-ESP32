@@ -41,6 +41,17 @@ void setupLocalNetwork() {
     else Serial.println("\n[LocalNetwork] mDNS responder started");
 }
 
+bool verifyRequest(StaticJsonDocument<256> document) {
+    String receivedEspId = document["espId"] | "";
+    String appId = document["appId"] | "";
+
+    if (receivedEspId != espId() || appId != memoryAppId()) {
+        Serial.println("[LocalNetwork] Error: Invalid espId or appId. ESP ID: " + receivedEspId + ", App ID: " + appId);
+        return false;
+    }
+    return true;
+}
+
 /// @brief Sets up the local web server to handle the setup request.
 void setupLocalServer() {
     Serial.println("[LocalNetwork] Setting up local server");
@@ -108,17 +119,66 @@ void setupLocalServer() {
             return;
         }
 
-        String receivedEspId = document["espId"] | "";
-        String appId = document["appId"] | "";
-        
-        if (receivedEspId != espId() || appId != memoryAppId()) {
-            Serial.println("[LocalNetwork] Error: Invalid espId or appId on reset. ESP ID: " + receivedEspId + ", App ID: " + appId);
+        if (verifyRequest(document)) {
+            localServer.send(200, "application/json", "{\"status\": \"OK\"}");
+            resetToFactorySettings();
+        } else {
+            localServer.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
+        }  
+    });
+
+    // Root to manage commands for turning on/off and setting the temperature
+    localServer.on("/command", HTTP_POST, []() {
+        if (!localServer.hasArg("plain")) {
+            Serial.println("[LocalNetwork] Error: No data on command");
+            localServer.send(400, "application/json", "{\"error\": \"No Data\"}");
+            return;
+        }
+
+        String json = localServer.arg("plain");
+        StaticJsonDocument<256> document;
+        DeserializationError error = deserializeJson(document, json);
+
+        if (error) {
+            Serial.println("[LocalNetwork] Error parsing data on command: " + String(error.c_str()));
             localServer.send(400, "application/json", "{\"error\": \"Invalid Data\"}");
             return;
         }
 
-        localServer.send(200, "application/json", "{\"status\": \"OK\"}");
-        resetToFactorySettings();
+        if (!verifyRequest(document)) {
+            localServer.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
+            return;
+        }
+
+        String command = document["command"] | "";
+
+        if (command == "turn_on") {
+            // TODO: Implement turn on command
+            // turnOff();
+            Serial.println("[LocalNetwork] Command: Turn on");
+            localServer.send(200, "application/json", "{\"status\": \"OK\"}");
+        } else if (command == "turn_off") {
+            // TODO: Implement turn off command
+            Serial.println("[LocalNetwork] Command: Turn off");
+            localServer.send(200, "application/json", "{\"status\": \"OK\"}");
+        } else if (command == "set_temperature") {
+            int temperature = document["temperature"] | 0;
+            if (temperature < MINIMUM_TEMPERATURE || temperature > MAXIMUM_TEMPERATURE) {
+                Serial.println("[LocalNetwork] Error: Invalid temperature value");
+                localServer.send(400, "application/json", "{\"error\": \"Invalid Temperature\"}");
+                return;
+            }
+            
+            // TODO: Implement set temperature command
+            // setTemperature(temperature);
+            
+            Serial.println("[LocalNetwork] Command: Set temperature to " + String(temperature));
+            writeTemperature(temperature);
+        } else {
+            Serial.println("[LocalNetwork] Error: Invalid command");
+            localServer.send(400, "application/json", "{\"error\": \"Invalid Command\"}");
+            return;
+        }
     });
 
     localServer.begin();
