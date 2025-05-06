@@ -71,27 +71,29 @@ void initAP() {
 
 void initWiFi() {
     WiFi.mode(WIFI_AP_STA); 
-    if (verifyMemory()) connectToWiFi(ssidSaved, passwordSaved); 
+    if (verifyMemory()) connectToWiFi(memorySSID(), memoryPassword()); 
     initAP();
 }
 
 // MARK: Server Routes
 void handleRoot() {
-    server.send(200, "text/plain", ssidSaved + " " + passwordSaved + " "+ String(connected)) ;
+    server.send(200, "text/plain", memorySSID() + " " +  memoryPassword() + " "+ String(connected)) ;
 }
 
 void handleData() {
-    if (server.hasArg("ssid") && server.hasArg("password")) {
+    if (server.hasArg("ssid") && server.hasArg("password") && server.hasArg("appId")) {
         
+
         String ssid = server.arg("ssid");
         String password = server.arg("password");
+        String appId = server.arg("appId");
 
         connectToWiFi(ssid, password);
 
         if (connectedTest) {
-            ssidSaved = ssid;
-            passwordSaved = password;
-            // writeMemory();
+
+            writeMemory(ssid, password, appId);
+
             server.send(200, "text/plain", "Datos recibidos correctamente");
         } else {
             server.send(400, "text/plain", "No se recibieron datos.");

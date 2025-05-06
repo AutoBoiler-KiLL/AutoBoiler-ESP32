@@ -15,8 +15,25 @@ const int APP_ID_ADDRESS = 150;
 /// @brief Defines the address where the temperature will be stored
 const int TEMPERATURE_ADDRESS = 200;
 
-String ssidSaved = "";
-String passwordSaved = "";
+/// @brief Returns the SSID stored in the EEPROM
+String memorySSID() {
+    return EEPROM.readString(SSID_ADDRESS);
+}
+
+/// @brief Returns the password stored in the EEPROM
+String memoryPassword() {
+    return EEPROM.readString(PASS_ADDRESS);
+}
+
+/// @brief Returns the app id stored in the EEPROM
+String memoryAppId() {
+    return EEPROM.readString(APP_ID_ADDRESS);
+}
+
+/// @brief Returns the temperature in Celsius stored in the EEPROM
+int memoryTemperature() {
+    return EEPROM.readInt(TEMPERATURE_ADDRESS);
+}
 
 /// @brief Initializes the EEPROM with the defined size
 void initMemory() {
@@ -40,11 +57,19 @@ void writeMemory(String ssid, String password, String appId) {
     Serial.println("[EEPROM] SSID, password and app id saved.");
 }
 
+/// @brief Writes the temperature in Celsius to the EEPROM
+void writeTemperature(int temperature) {
+    EEPROM.writeInt(TEMPERATURE_ADDRESS, temperature);
+    EEPROM.commit();
+    Serial.println("[EEPROM] Temperature saved.");
+}
+
 /// @brief Removes everything from the EEPROM
 void resetToFactorySettings() {
     EEPROM.writeString(SSID_ADDRESS, "");
     EEPROM.writeString(PASS_ADDRESS, "");
     EEPROM.writeString(APP_ID_ADDRESS, "");
+    EEPROM.writeInt(TEMPERATURE_ADDRESS, 0);
     EEPROM.commit();
     Serial.println("[EEPROM] Factory settings restored.");
 }
