@@ -65,7 +65,7 @@ void writeTemperature(int temperature) {
 }
 
 /// @brief Removes everything from the EEPROM
-void resetToFactorySettings() {
+void clearMemory() {
     EEPROM.writeString(SSID_ADDRESS, "");
     EEPROM.writeString(PASS_ADDRESS, "");
     EEPROM.writeString(APP_ID_ADDRESS, "");
