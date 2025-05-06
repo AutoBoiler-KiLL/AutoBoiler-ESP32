@@ -48,7 +48,7 @@ void onWiFiEvent(WiFiEvent_t event) {
 
 /// @brief Tries to reconnect to WiFi if it is not connected
 void tryReconnectWiFi() {
-    if (!wifiConnected && millis() - lastWiFiAttempt > WIFI_RETRY_INTERVAL) {
+    if (verifyMemory() && !wifiConnected && millis() - lastWiFiAttempt > WIFI_RETRY_INTERVAL) {
         lastWiFiAttempt = millis();
         Serial.println("[GlobalNetwork] Attempting to reconnect to WiFi...");
         startWiFiConnect();
