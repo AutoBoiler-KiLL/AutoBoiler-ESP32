@@ -182,36 +182,7 @@ void setupLocalServer() {
             return;
         }
 
-        String command = document["command"] | "";
-
-        if (command == "turn_on") {
-            // TODO: Implement turn on command
-            // turnOff();
-            Serial.println("[LocalNetwork] Command: Turn on");
-            localServer.send(200, "application/json", "{\"status\": \"OK\"}");
-        } else if (command == "turn_off") {
-            // TODO: Implement turn off command
-            // turnOff();
-            Serial.println("[LocalNetwork] Command: Turn off");
-            localServer.send(200, "application/json", "{\"status\": \"OK\"}");
-        } else if (command == "set_temperature") {
-            uint8_t temperature = document["temperature"] | 0;
-            if (temperature < MINIMUM_TEMPERATURE || temperature > MAXIMUM_TEMPERATURE) {
-                Serial.println("[LocalNetwork] Error: Invalid temperature value");
-                localServer.send(400, "application/json", "{\"error\": \"Invalid Temperature\"}");
-                return;
-            }
-            
-            // TODO: Implement set temperature command
-            // setTemperature(temperature);
-            
-            Serial.println("[LocalNetwork] Command: Set temperature to " + String(temperature));
-            writeTemperature(temperature);
-        } else {
-            Serial.println("[LocalNetwork] Error: Invalid command");
-            localServer.send(400, "application/json", "{\"error\": \"Invalid Command\"}");
-            return;
-        }
+        handleCommand(document, &localServer);
     });
 
     startLocalServer();

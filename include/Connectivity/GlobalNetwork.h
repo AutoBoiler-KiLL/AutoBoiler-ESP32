@@ -1,7 +1,6 @@
 #ifndef GLOBAL_NETWORK_H
 #define GLOBAL_NETWORK_H
 
-#include <esp_wifi.h>
 #include <WebSocketsClient.h>
 #include <WiFi.h>
 
@@ -64,12 +63,25 @@ void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
             Serial.println("[GlobalNetwork] Connected to server, stopping local server");
             stopLocalServer();
             break;
+        
         case WStype_DISCONNECTED:
             Serial.println("[GlobalNetwork] Disconnected from server, starting local server");
             startLocalServer();
             break;
+        
         case WStype_TEXT:
-            Serial.println("[GlobalNetwork] Received message from server: " + String((char*)payload));
+            String command = String((char*)payload);
+            JsonDocument document;
+            
+            DeserializationError error = deserializeJson(document, command);
+            if (error) {
+                Serial.println("[GlobalNetwork] Error parsing command: " + String(error.c_str()));
+                return;
+            }
+
+            if (!verifyRequest(document)) return;
+
+            handleCommand(document, nullptr, &webSocket);
             break;
     }
 }
