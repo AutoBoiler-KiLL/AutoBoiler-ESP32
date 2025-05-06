@@ -9,8 +9,8 @@
 
 #include "KiLL.h"
 
-const int MAX_MDNS_RETRIES = 10;
-const int HTTP_PORT = 80;
+const uint8_t MAX_MDNS_RETRIES = 10;
+const uint8_t HTTP_PORT = 80;
 
 /// @brief Global local web server instance
 WebServer localServer(HTTP_PORT);
@@ -37,7 +37,7 @@ bool setupLocalNetwork() {
     Serial.print("[LocalNetwork] Setting up local network");
     String hostname = SSID();
     
-    int retryAttempt = 0;
+    uint8_t retryAttempt = 0;
     while (!MDNS.begin(hostname) && retryAttempt <= MAX_MDNS_RETRIES) {
         Serial.print(".");
         delay(1000);
@@ -174,7 +174,7 @@ void setupLocalServer() {
             Serial.println("[LocalNetwork] Command: Turn off");
             localServer.send(200, "application/json", "{\"status\": \"OK\"}");
         } else if (command == "set_temperature") {
-            int temperature = document["temperature"] | 0;
+            uint8_t temperature = document["temperature"] | 0;
             if (temperature < MINIMUM_TEMPERATURE || temperature > MAXIMUM_TEMPERATURE) {
                 Serial.println("[LocalNetwork] Error: Invalid temperature value");
                 localServer.send(400, "application/json", "{\"error\": \"Invalid Temperature\"}");

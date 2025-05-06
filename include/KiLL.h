@@ -7,7 +7,7 @@ const uint8_t MINIMUM_TEMPERATURE = 25;
 const uint8_t MAXIMUM_TEMPERATURE = 45;
 
 const uint8_t FACTORY_RESET_PIN = 10;
-const int FACTORY_RESET_TIMEOUT = 10000; 
+const uint16_t FACTORY_RESET_HOLD_TIME = 10000; 
 
 bool factoryButtonPressed = false;
 unsigned long factoryButtonPressedTime = 0;
@@ -25,33 +25,32 @@ String espId() {
 /// @brief Resets the ESP32 to factory settings.
 /// This will clear the EEPROM and restart the ESP32.
 void resetToFactorySettings() {
-    Serial.println("[ESP32] Resetting to factory settings...");
+    Serial.println("[KiLL] Resetting to factory settings...");
     clearMemory();
     delay(3000);
     ESP.restart();
 }
 
+/// @brief Checks if the factory reset button has been pressed for `FACTORY_RESET_HOLD_TIME` milliseconds.
 void checkForFactoryReset() {
-    bool buttonPressed = digitalRead(FACTORY_RESET_PIN) == LOW;
+    bool isButtonNowPressed = digitalRead(FACTORY_RESET_PIN) == LOW;
 
     // Button pressed for the first time
-    if (buttonPressed && !factoryButtonPressed) {
+    if (isButtonNowPressed && !factoryButtonPressed) {
         factoryButtonPressed = true;
         factoryButtonPressedTime = millis();
     } 
     
-    // Button released before timeout
-    if (!buttonPressed && factoryButtonPressed) {
-        factoryButtonPressed = false;
-        if (millis() - factoryButtonPressedTime >= FACTORY_RESET_TIMEOUT) {
-            resetToFactorySettings();
-        }
+    // Button pressed for FACTORY_RESET_HOLD_TIME, reset to factory settings
+    if (isButtonNowPressed && millis() - factoryButtonPressedTime >= FACTORY_RESET_HOLD_TIME) {
+        Serial.println("[KiLL] Factory reset button pressed for too long. Resetting to factory settings...");
+        resetToFactorySettings();
     }
 
-    // Button pressed for timeout, reset to factory settings
-    if (buttonPressed && millis() - factoryButtonPressedTime >= FACTORY_RESET_TIMEOUT) {
-        Serial.println("[ESP32] Factory reset button pressed for too long. Resetting to factory settings...");
-        resetToFactorySettings();
+    // Button released before timeout
+    if (!isButtonNowPressed && factoryButtonPressed) {
+        factoryButtonPressed = false;
+        factoryButtonPressedTime = 0;
     }
 }
 
