@@ -92,7 +92,7 @@ void handleCommand(JsonDocument& document, WebServer* localServer = nullptr, Web
     } else if (webSocket) {
         webSocket->sendTXT(response);
     } else {
-        Serial.println("A magician must have sent a command, 'cause there's no local server or web socket");
+        Serial.println("Error: No local server or web socket available to handle the command.");
     }
 }
 
