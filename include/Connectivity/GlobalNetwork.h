@@ -16,6 +16,7 @@ unsigned long lastWiFiAttempt = 0;
 const unsigned long WIFI_RETRY_INTERVAL = 5000;
 
 WebSocketsClient webSocket;
+void setupWebSocket();
 
 /// @brief Connects to WiFi using credentials stored in memory
 void startWiFiConnect() {
@@ -34,6 +35,7 @@ void onWiFiEvent(WiFiEvent_t event) {
             wifiConnected = true;
             stopWiFiAccessPoint();
             stopLocalServer();
+            setupWebSocket();
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             Serial.println("[GlobalNetwork] WiFi disconnected, enabling SoftAP and local server");

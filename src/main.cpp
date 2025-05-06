@@ -6,13 +6,16 @@
 
 void setup() {
   Serial.begin(115200);
+
   pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
+  
   initMemory();
   setupLocalNetwork();
   WiFi.onEvent(onWiFiEvent);
   
-  if (verifyMemory()) startWiFiConnect();
-  else {
+  if (verifyMemory()) {
+    startWiFiConnect();
+  } else {
     initializeWiFiAccessPoint();
     startLocalServer();
   }

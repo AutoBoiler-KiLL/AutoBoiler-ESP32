@@ -72,6 +72,7 @@ bool setupLocalNetwork() {
     }
 }
 
+/// @brief Verifies the request by checking the received espId and appId with the stored ones in memory
 bool verifyRequest(JsonDocument document) {
     String receivedEspId = document["espId"] | "";
     String appId = document["appId"] | "";
