@@ -5,7 +5,7 @@
 #include <ESPmDNS.h>
 #include <WebServer.h>
 
-#include "MemoryControl.h"
+#include "Memory.h"
 #include "KiLL.h"
 
 void handleRoot();
@@ -71,7 +71,7 @@ void initAP() {
 
 void initWiFi() {
     WiFi.mode(WIFI_AP_STA); 
-    if (readMemory()) connectToWiFi(ssidSaved, passwordSaved); 
+    if (verifyMemory()) connectToWiFi(ssidSaved, passwordSaved); 
     initAP();
 }
 
@@ -91,7 +91,7 @@ void handleData() {
         if (connectedTest) {
             ssidSaved = ssid;
             passwordSaved = password;
-            writeMemory();
+            // writeMemory();
             server.send(200, "text/plain", "Datos recibidos correctamente");
         } else {
             server.send(400, "text/plain", "No se recibieron datos.");
