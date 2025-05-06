@@ -72,7 +72,7 @@ bool setupLocalNetwork() {
     }
 }
 
-bool verifyRequest(StaticJsonDocument<256> document) {
+bool verifyRequest(JsonDocument document) {
     String receivedEspId = document["espId"] | "";
     String appId = document["appId"] | "";
 
@@ -107,7 +107,7 @@ void setupLocalServer() {
         }
 
         String json = localServer.arg("plain");
-        StaticJsonDocument<256> document;
+        JsonDocument document;
         DeserializationError error = deserializeJson(document, json);
 
         if (error) {
@@ -141,7 +141,7 @@ void setupLocalServer() {
         }
 
         String json = localServer.arg("plain");
-        StaticJsonDocument<256> document;
+        JsonDocument document;
         DeserializationError error = deserializeJson(document, json);
 
         if (error) {
@@ -167,7 +167,7 @@ void setupLocalServer() {
         }
 
         String json = localServer.arg("plain");
-        StaticJsonDocument<256> document;
+        JsonDocument document;
         DeserializationError error = deserializeJson(document, json);
 
         if (error) {
