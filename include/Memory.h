@@ -36,7 +36,7 @@ int memoryTemperature() {
 }
 
 /// @brief Initializes the EEPROM with the defined size
-void initMemory() {
+void initializeMemory() {
     EEPROM.begin(EEPROM_SIZE);
 }
 

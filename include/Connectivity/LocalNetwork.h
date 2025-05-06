@@ -1,7 +1,6 @@
 #ifndef LOCAL_NETWORK_H
 #define LOCAL_NETWORK_H
 
-#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ESPmDNS.h>
 #include <WiFi.h>
@@ -52,7 +51,7 @@ void stopLocalServer() {
 }
 
 /// @brief Tries to set up the ESP32 to be accessible on the local network.
-bool setupLocalNetwork() {
+void setupLocalNetwork() {
     Serial.print("[LocalNetwork] Setting up local network");
     String hostname = SSID();
     
@@ -64,11 +63,10 @@ bool setupLocalNetwork() {
     }
 
     if (retryAttempt >= MAX_MDNS_RETRIES) {
-        Serial.println("\n[LocalNetwork] Error setting up MDNS responder!");
-        return false;
+        Serial.println("\n[LocalNetwork] Error setting up MDNS responder! Restarting...");
+        ESP.restart();
     } else {
         Serial.println("\n[LocalNetwork] mDNS responder started");
-        return true;
     }
 }
 

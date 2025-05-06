@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include "Connectivity/LocalNetwork.h"
 #include "Connectivity/GlobalNetwork.h"
 #include "KiLL.h"
 #include "Memory.h"
@@ -9,8 +10,7 @@ void setup() {
 
   pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
   
-  initMemory();
-  setupLocalNetwork();
+  initializeMemory();
   WiFi.onEvent(onWiFiEvent);
   
   if (verifyMemory()) {
@@ -19,6 +19,8 @@ void setup() {
     initializeWiFiAccessPoint();
     startLocalServer();
   }
+
+  setupLocalNetwork();
 }
 
 void loop() {

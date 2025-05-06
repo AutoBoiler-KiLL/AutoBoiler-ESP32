@@ -7,7 +7,6 @@
 #include "LocalNetwork.h"
 #include "Memory.h"
 
-const uint16_t WIFI_TIMEOUT = 5000;
 const String serverURL = "smartboiler-server.onrender.com";
 
 volatile bool wifiConnected = false;
@@ -30,7 +29,7 @@ void startWiFiConnect() {
 void onWiFiEvent(WiFiEvent_t event) {
     switch (event) {
         case SYSTEM_EVENT_STA_CONNECTED:
-            Serial.println("[GlobalNetwork] WiFi connected! IP address: " + WiFi.localIP());
+            Serial.println("[GlobalNetwork] WiFi connected! Connecting to server... IP address: " + WiFi.localIP());
             wifiConnected = true;
             stopWiFiAccessPoint();
             stopLocalServer();
@@ -47,7 +46,7 @@ void onWiFiEvent(WiFiEvent_t event) {
     }
 }
 
-/// @brief Tries to reconnect to WiFi if it is not connected
+/// @brief Tries to reconnect to WiFi if it is not connected and the memory is valid
 void tryReconnectWiFi() {
     if (verifyMemory() && !wifiConnected && millis() - lastWiFiAttempt > WIFI_RETRY_INTERVAL) {
         lastWiFiAttempt = millis();

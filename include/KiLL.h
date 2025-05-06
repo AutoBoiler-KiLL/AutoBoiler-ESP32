@@ -22,12 +22,11 @@ unsigned long factoryButtonPressedTime = 0;
 String espId() {
     uint64_t chipId = ESP.getEfuseMac();
     char buffer[13];
-    sprintf(buffer, "%04X%08X", (uint16_t) (chipId >> 32), (uint32_t) chipId);
+    sprintf(buffer, "%04X%08X", (uint16_t)(chipId >> 32), (uint32_t)chipId);
     return String(buffer);
 }
 
-/// @brief Resets the ESP32 to factory settings.
-/// This will clear the EEPROM and restart the ESP32.
+/// @brief Resets the ESP32 to factory settings, clearing the EEPROM and restarting.
 void resetToFactorySettings() {
     Serial.println("[KiLL] Resetting to factory settings...");
     clearMemory();
