@@ -2,9 +2,10 @@
 #define LOCAL_NETWORK_H
 
 #include <Arduino.h>
-#include <ESPmDNS.h>
-#include <WebServer.h>
 #include <ArduinoJson.h>
+#include <ESPmDNS.h>
+#include <WiFi.h>
+#include <WebServer.h>
 
 #include "KiLL.h"
 
@@ -21,12 +22,18 @@ const String SSID() {
 
 /// @brief The URL to access the ESP32's web server on the local network. 
 /// Example: "http://kill-5CCF7F0D3A4A.local/"
-String getLocalNetworkHostname() {
+const String getLocalNetworkHostname() {
     return "http://kill-" + espId() + ".local/";
 }
 
+void initializeWiFiAccessPoint() {
+    WiFi.softAP(SSID());
+    Serial.println("[LocalNetwork] WiFi Access Point started");
+    Serial.println("[LocalNetwork] IP Address: " + WiFi.softAPIP().toString());
+}
+
 /// @brief Tries to set up the ESP32 to be accessible on the local network.
-void setupLocalNetwork() {
+bool setupLocalNetwork() {
     Serial.print("[LocalNetwork] Setting up local network");
     String hostname = SSID();
     
@@ -37,8 +44,13 @@ void setupLocalNetwork() {
         retryAttempt += 1;
     }
 
-    if (retryAttempt >= MAX_MDNS_RETRIES) Serial.println("\n[LocalNetwork] Error setting up MDNS responder!");
-    else Serial.println("\n[LocalNetwork] mDNS responder started");
+    if (retryAttempt >= MAX_MDNS_RETRIES) {
+        Serial.println("\n[LocalNetwork] Error setting up MDNS responder!");
+        return false;
+    } else {
+        Serial.println("\n[LocalNetwork] mDNS responder started");
+        return true;
+    }
 }
 
 bool verifyRequest(StaticJsonDocument<256> document) {
