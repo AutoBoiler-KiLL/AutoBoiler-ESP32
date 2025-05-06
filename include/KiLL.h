@@ -19,8 +19,8 @@ void resetToFactorySettings() {
     // Reset the ESP32 to factory settings
     Serial.println("[ESP32] Resetting to factory settings...");
     clearMemory();
-    delay(1000);
-    esp_restart();
+    delay(3000);
+    ESP.restart();
 }
 
 #endif
