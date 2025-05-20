@@ -5,7 +5,7 @@
 #include <WebSocketsClient.h>
 #include <WebServer.h>
 
-#include "Memory.h"
+#include "Memory2.h"
 
 const uint8_t MINIMUM_TEMPERATURE = 25;
 const uint8_t MAXIMUM_TEMPERATURE = 45;

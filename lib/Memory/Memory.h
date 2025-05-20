@@ -31,7 +31,7 @@ public:
     static int getTemperature();
 
     /// @brief Writes the SSID, password and app id to the EEPROM
-    static void writeMemory(String ssid, String password, String appId);
+    static void write(String ssid, String password, String appId);
     /// @brief Writes the temperature to the EEPROM
     static void writeTemperature(int temperature);
 

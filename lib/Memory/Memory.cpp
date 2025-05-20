@@ -26,7 +26,7 @@ int Memory::getTemperature() {
     return EEPROM.readInt(TEMPERATURE_ADDRESS);
 }
 
-void Memory::writeMemory(String ssid, String password, String appId) {
+void Memory::write(String ssid, String password, String appId) {
     EEPROM.writeString(SSID_ADDRESS, ssid);
     EEPROM.writeString(PASS_ADDRESS, password);
     EEPROM.writeString(APP_ID_ADDRESS, appId);
