@@ -19,7 +19,7 @@ public:
     /// @brief Initializes the EEPROM
     static void initialize();
     /// @brief Verifies if the memory content is valid
-    static bool verifyMemoryContent();
+    static bool verifyContent();
 
     /// @brief Gets the SSID from the EEPROM
     static String getSSID();

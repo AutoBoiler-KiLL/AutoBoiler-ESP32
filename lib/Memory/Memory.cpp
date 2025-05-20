@@ -4,7 +4,7 @@ void Memory::initialize() {
     EEPROM.begin(EEPROM_SIZE);
 }
 
-bool Memory::verifyMemoryContent() {
+bool Memory::verifyContent() {
     return EEPROM.readString(SSID_ADDRESS).length() != 0 && 
            EEPROM.readString(PASS_ADDRESS).length() != 0 &&
            EEPROM.readString(APP_ID_ADDRESS).length() != 0;
