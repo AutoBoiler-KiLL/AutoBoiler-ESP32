@@ -4,11 +4,11 @@
 LocalNetwork::LocalNetwork() : server(HTTP_PORT) {}
 
 const String LocalNetwork::getHostname() {
-    return "http://" + espId() + ".local/";
+    return "http://" + KiLL::espId() + ".local/";
 }
 
 const String LocalNetwork::SSID() {
-    return "KiLL-" + espId();
+    return "KiLL-" + KiLL::espId();
 }
 
 void LocalNetwork::initialize() {
@@ -61,6 +61,10 @@ void LocalNetwork::setupLocalNetwork() {
     } else {
         Serial.println("\n[LocalNetwork] mDNS responder started");
     }
+}
+
+void LocalNetwork::keepServerAlive() {
+    server.handleClient();
 }
 
 // MARK: Routes
@@ -120,7 +124,7 @@ void LocalNetwork::handleResetFactory() {
 
     if (Utils::verifyRequest(document)) {
         server.send(200, "application/json", "{\"status\": \"OK\"}");
-        resetToFactorySettings();
+        KiLL::resetToFactorySettings();
     } else {
         server.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
     }

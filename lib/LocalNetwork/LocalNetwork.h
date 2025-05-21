@@ -6,8 +6,8 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-#include "KiLL.h"
-#include "Utils.h"
+#include <KiLL.h>
+#include <Utils.h>
 
 class LocalNetwork {
 public:
@@ -19,6 +19,8 @@ public:
     void setupServer();
     void startServer();
     void stopServer();
+
+    void keepServerAlive();
 
     void setupLocalNetwork();
 

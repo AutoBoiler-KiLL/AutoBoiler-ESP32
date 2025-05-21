@@ -36,7 +36,7 @@ public:
     static void writeTemperature(int temperature);
 
     /// @brief Removes everything from the EEPROM
-    static void clearMemory();
+    static void clear();
 };
 
 #endif

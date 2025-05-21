@@ -9,7 +9,7 @@
 
 class GlobalNetwork {
 public:
-    GlobalNetwork();
+    GlobalNetwork(LocalNetwork& localNetwork);
 
     /// @brief Connects to WiFi using credentials stored in memory
     void startWiFiConnection();
@@ -19,11 +19,13 @@ public:
     /// @brief Handles WebSocket events
     void webSocketEvent(WStype_t type, uint8_t* payload, size_t length);
 
+    bool isConnectedToWifi();
 
 private:
     const String serverURL = "smartboiler-server.onrender.com";
     static constexpr unsigned long WIFI_RETRY_INTERVAL = 5000;
 
+    LocalNetwork& localNetwork;
     unsigned long lastWiFiAttempt;
     volatile bool wifiConnected;
 

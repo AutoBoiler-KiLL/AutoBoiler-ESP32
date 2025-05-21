@@ -2,7 +2,7 @@
 #include <GlobalNetwork.h>
 #include <Utils.h>
 
-GlobalNetwork::GlobalNetwork() {
+GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork) : localNetwork(localNetwork) {
     lastWiFiAttempt = 0;
     wifiConnected = false;
 
@@ -15,6 +15,10 @@ void GlobalNetwork::startWiFiConnection() {
     Serial.println("[GlobalNetwork] Connecting to WiFi network: " + ssid);
     WiFi.begin(ssid, password);
     lastWiFiAttempt = millis();
+}
+
+bool GlobalNetwork::isConnectedToWifi() {
+    return wifiConnected;
 }
 
 void GlobalNetwork::tryReconnectWiFi() {
@@ -30,15 +34,15 @@ void GlobalNetwork::onWiFiEvent(WiFiEvent_t event) {
         case SYSTEM_EVENT_STA_CONNECTED:
             Serial.println("[GlobalNetwork] WiFi connected! IP Address: " + String(WiFi.localIP()) + " Connecting to server...");
             wifiConnected = true;
-            // TODO: Stop SoftAP
-            // TODO: Stop local server
+            localNetwork.stopAccessPoint();
+            localNetwork.stopServer();
             connectWebSocket();
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             Serial.println("[GlobalNetwork] WiFi disconnected, enabling SoftAP and local server");
             wifiConnected = false;
-            // TODO: Start SoftAP
-            // TODO: Start local server
+            localNetwork.initialize();
+            localNetwork.startServer();
             break;
         default:
             break;
@@ -55,12 +59,12 @@ void GlobalNetwork::webSocketEvent(WStype_t type, uint8_t* payload, size_t lengt
     switch (type) {
         case WStype_CONNECTED:
             Serial.println("[GlobalNetwork] Connected to server, stopping local server");
-            // TODO: Stop local server
+            localNetwork.stopServer();
             break;
         
         case WStype_DISCONNECTED:
             Serial.println("[GlobalNetwork] Disconnected from server, starting local server");
-            // TODO: Start local server
+            localNetwork.startServer();
             break;
         
         case WStype_TEXT:

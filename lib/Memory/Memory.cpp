@@ -38,7 +38,7 @@ void Memory::writeTemperature(int temperature) {
     EEPROM.commit();
 }
 
-void Memory::clearMemory() {
+void Memory::clear() {
     EEPROM.writeString(SSID_ADDRESS, "");
     EEPROM.writeString(PASS_ADDRESS, "");
     EEPROM.writeString(APP_ID_ADDRESS, "");
