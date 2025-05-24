@@ -45,7 +45,7 @@ void GlobalNetwork::onWiFiEvent(WiFiEvent_t event) {
         case SYSTEM_EVENT_STA_GOT_IP:
             Serial.println("[GlobalNetwork] WiFi got IP address: " + String(WiFi.localIP()) + " Connecting to server...");
             wifiConnected = true;
-            // localNetwork.stopAccessPoint();
+            localNetwork.stopAccessPoint();
             connectWebSocket();
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
@@ -68,6 +68,7 @@ void GlobalNetwork::connectWebSocket() {
 void GlobalNetwork::webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
     switch (type) {
         case WStype_CONNECTED: {
+            if (isConnectedToServer) return;
             Serial.println("[GlobalNetwork] Connected to server via websocket");
             isConnectedToServer = true;
             break;
