@@ -6,6 +6,7 @@
 
 #include "LocalNetwork.h"
 #include "Memory.h"
+#include "Utils.h"
 
 class GlobalNetwork {
 public:
@@ -15,6 +16,8 @@ public:
     void startWiFiConnection(const bool debug = true);
     /// @brief Tries to reconnect to WiFi if it is not connected and the memory is valid
     void tryReconnectWiFi();
+
+    void keepConnectionWithServer();
 
     bool isConnectedToWifi();
 
@@ -26,6 +29,7 @@ private:
     unsigned long lastWiFiAttempt;
     volatile bool wifiConnected;
     volatile bool lastMemoryStatus;
+    volatile bool isConnectedToServer;
 
     WebSocketsClient webSocket;
 

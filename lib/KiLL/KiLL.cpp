@@ -41,8 +41,11 @@ const String KiLL::espId() {
     return String(buffer);
 }
 
-void KiLL::keepLocalServerAlive() {
+void KiLL::keepServersAlive() {
     localNetwork->keepServerAlive();
+    if (globalNetwork->isConnectedToWifi()) {
+        globalNetwork->keepConnectionWithServer();
+    }
 }
 
 void KiLL::tryToReconnectToWifi() {

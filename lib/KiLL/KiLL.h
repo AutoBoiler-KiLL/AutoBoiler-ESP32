@@ -23,7 +23,7 @@ public:
     /// @brief Resets the ESP32 to factory settings, clearing the EEPROM and restarting.
     static void resetToFactorySettings();
 
-    void keepLocalServerAlive();
+    void keepServersAlive();
     void tryToReconnectToWifi();
 
 private:

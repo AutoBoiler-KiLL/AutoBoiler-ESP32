@@ -1,13 +1,10 @@
 #include "GlobalNetwork.h"
 
-#include "LocalNetwork.h"
-#include "Utils.h"
-#include "Memory.h"
-
 GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork) : localNetwork(localNetwork) {
     lastWiFiAttempt = 0;
     wifiConnected = false;
     lastMemoryStatus = false;
+    isConnectedToServer = false;
 
     WiFi.onEvent(std::bind(&GlobalNetwork::onWiFiEvent, this, std::placeholders::_1), WiFiEvent_t::ARDUINO_EVENT_MAX);
 }
@@ -31,16 +28,24 @@ void GlobalNetwork::tryReconnectWiFi() {
         Serial.println("[GlobalNetwork] Attempting to reconnect to WiFi network " + Memory::getSSID());
         startWiFiConnection(false);
     }
-    
+
     lastMemoryStatus = memoryStatus;
+}
+
+void GlobalNetwork::keepConnectionWithServer() {
+    webSocket.sendPing();
+    webSocket.loop();    
 }
 
 void GlobalNetwork::onWiFiEvent(WiFiEvent_t event) {
     switch (event) {
         case SYSTEM_EVENT_STA_CONNECTED:
-            Serial.println("[GlobalNetwork] WiFi connected! IP Address: " + String(WiFi.localIP()) + " Connecting to server...");
+            Serial.println("[GlobalNetwork] WiFi connected to network");
+            break;
+        case SYSTEM_EVENT_STA_GOT_IP:
+            Serial.println("[GlobalNetwork] WiFi got IP address: " + String(WiFi.localIP()) + " Connecting to server...");
             wifiConnected = true;
-            localNetwork.stopAccessPoint();
+            // localNetwork.stopAccessPoint();
             connectWebSocket();
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
@@ -55,21 +60,27 @@ void GlobalNetwork::onWiFiEvent(WiFiEvent_t event) {
 
 void GlobalNetwork::connectWebSocket() {
     webSocket.beginSSL(serverURL, 443, "/socket");
+    webSocket.enableHeartbeat(15000, 3000, 2);
     webSocket.onEvent(std::bind(&GlobalNetwork::webSocketEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-    webSocket.setReconnectInterval(500);
+    webSocket.setReconnectInterval(5000);
 }
 
 void GlobalNetwork::webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
     switch (type) {
-        case WStype_CONNECTED:
+        case WStype_CONNECTED: {
             Serial.println("[GlobalNetwork] Connected to server via websocket");
+            isConnectedToServer = true;
             break;
+        }
         
-        case WStype_DISCONNECTED:
+        case WStype_DISCONNECTED: {
+            if (!isConnectedToServer) return;
             Serial.println("[GlobalNetwork] Disconnected from server");
+            isConnectedToServer = false;
             break;
+        }
         
-        case WStype_TEXT:
+        case WStype_TEXT: {
             String command = String((char*)payload);
             JsonDocument document;
             DeserializationError error = deserializeJson(document, command);
@@ -83,5 +94,21 @@ void GlobalNetwork::webSocketEvent(WStype_t type, uint8_t* payload, size_t lengt
             // TODO: Handle command
             webSocket.sendTXT("{\"status\": \"OK\"}");
             break;
+        }
+
+        case WStype_PING: {
+            Serial.println("[GlobalNetwork] Ping received from server");
+            break;
+        }
+
+        case WStype_PONG: {
+            // Serial.println("[GlobalNetwork] Pong received from server");
+            break;
+        }
+
+        default: {
+            Serial.println("[GlobalNetwork] Unhandled WebSocket event: " + String(type));
+            break;
+        }
     }
 }

@@ -9,7 +9,7 @@ void setup() {
 }
 
 void loop() {
-  smartBoiler.keepLocalServerAlive();
+  smartBoiler.keepServersAlive();
   smartBoiler.checkForFactoryReset();
   smartBoiler.tryToReconnectToWifi();
 }
