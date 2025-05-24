@@ -44,7 +44,7 @@ private:
     
     /// MARK: Routes
 
-    bool checkRequestData(JsonDocument& document);
+    bool checkRequestData(JsonDocument& document, const String source);
 
     /// @brief Root to check if the ESP32 is reachable
     void handleRoot();

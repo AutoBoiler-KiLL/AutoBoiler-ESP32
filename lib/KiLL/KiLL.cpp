@@ -31,7 +31,6 @@ void KiLL::setup() {
 
     if (Memory::verifyContent()) {
         globalNetwork->startWiFiConnection();
-        localNetwork->stopAccessPoint();
     }
 }
 

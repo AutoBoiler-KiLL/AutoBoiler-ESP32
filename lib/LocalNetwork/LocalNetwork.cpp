@@ -32,6 +32,7 @@ void LocalNetwork::onStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info
 }
 
 void LocalNetwork::initialize() {
+    WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(SSID());
     Serial.println("[LocalNetwork] WiFi Access Point started");
     Serial.println("[LocalNetwork] IP Address: " + WiFi.softAPIP().toString());
@@ -93,9 +94,9 @@ void LocalNetwork::keepServerAlive() {
 
 // MARK: Routes
 
-bool LocalNetwork::checkRequestData(JsonDocument& document) {
+bool LocalNetwork::checkRequestData(JsonDocument& document, const String source) {
     if (!server.hasArg("plain")) {
-        Serial.println("[LocalNetwork] Error: No data on setup");
+        Serial.println("[LocalNetwork] Error: No data on " + source);
         server.send(400, "application/json", "{\"error\": \"No Data\"}");
         return false;
     }
@@ -117,13 +118,12 @@ void LocalNetwork::handleRoot() {
 }
 
 void LocalNetwork::handleNotFound() {
-    Serial.println("[LocalNetwork] Error: Not found");
     server.send(404, "text/plain", "Not found");
 }
 
 void LocalNetwork::handleSetup() {
     JsonDocument document;
-    if (!checkRequestData(document)) return;
+    if (!checkRequestData(document, "setup")) return;
 
     String ssid = document["ssid"] | "";
     String password = document["password"] | "";
@@ -144,7 +144,7 @@ void LocalNetwork::handleSetup() {
 
 void LocalNetwork::handleResetFactory() {
     JsonDocument document;
-    if (!checkRequestData(document)) return;
+    if (!checkRequestData(document, "reset factory")) return;
 
     if (Utils::verifyRequest(document)) {
         server.send(200, "application/json", "{\"status\": \"OK\"}");
@@ -156,7 +156,7 @@ void LocalNetwork::handleResetFactory() {
 
 void LocalNetwork::handleCommand() {
     JsonDocument document;
-    if (!checkRequestData(document)) return;
+    if (!checkRequestData(document, "command")) return;
     if (!Utils::verifyRequest(document)) {
         server.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
         return;
