@@ -6,17 +6,39 @@
 LocalNetwork::LocalNetwork() : server(HTTP_PORT) {}
 
 const String LocalNetwork::getHostname() {
-    return "http://" + KiLL::espId() + ".local/";
+    return "http://KiLL-" + KiLL::espId() + ".local/";
 }
 
 const String LocalNetwork::SSID() {
     return "KiLL-" + KiLL::espId();
 }
 
+void LocalNetwork::onStationConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+    Serial.print("[LocalNetwork] Station connected: ");
+    for (uint8_t i = 0; i < 6; i++) {
+        Serial.printf("%02X", info.wifi_ap_staconnected.mac[i]);
+        if (i < 5) Serial.print(":");
+    }
+    Serial.println();
+}
+
+void LocalNetwork::onStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
+    Serial.print("[LocalNetwork] Station disconnected: ");
+    for (uint8_t i = 0; i < 6; i++) {
+        Serial.printf("%02X", info.wifi_ap_stadisconnected.mac[i]);
+        if (i < 5) Serial.print(":");
+    }
+    Serial.println();
+}
+
 void LocalNetwork::initialize() {
     WiFi.softAP(SSID());
     Serial.println("[LocalNetwork] WiFi Access Point started");
     Serial.println("[LocalNetwork] IP Address: " + WiFi.softAPIP().toString());
+
+    // Register Wi-Fi event handlers
+    WiFi.onEvent(onStationConnected, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
+    WiFi.onEvent(onStationDisconnected, ARDUINO_EVENT_WIFI_AP_STADISCONNECTED);
 }
 
 void LocalNetwork::stopAccessPoint() {

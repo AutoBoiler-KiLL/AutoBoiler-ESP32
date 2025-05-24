@@ -38,6 +38,9 @@ private:
 
     /// @brief Local network SSID
     const String SSID();
+
+    static void onStationConnected(WiFiEvent_t event, WiFiEventInfo_t info);
+    static void onStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info);
     
     /// MARK: Routes
 
