@@ -25,6 +25,7 @@ private:
     LocalNetwork& localNetwork;
     unsigned long lastWiFiAttempt;
     volatile bool wifiConnected;
+    volatile bool lastMemoryStatus;
 
     WebSocketsClient webSocket;
 

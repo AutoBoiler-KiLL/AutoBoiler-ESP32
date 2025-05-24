@@ -7,6 +7,7 @@
 GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork) : localNetwork(localNetwork) {
     lastWiFiAttempt = 0;
     wifiConnected = false;
+    lastMemoryStatus = false;
 
     WiFi.onEvent(std::bind(&GlobalNetwork::onWiFiEvent, this, std::placeholders::_1), WiFiEvent_t::ARDUINO_EVENT_MAX);
 }
@@ -24,11 +25,14 @@ bool GlobalNetwork::isConnectedToWifi() {
 }
 
 void GlobalNetwork::tryReconnectWiFi() {
-    if (Memory::verifyContent() && !wifiConnected && millis() - lastWiFiAttempt > WIFI_RETRY_INTERVAL) {
+    bool memoryStatus = Memory::verifyContent();
+    if ((memoryStatus && !wifiConnected && millis() - lastWiFiAttempt > WIFI_RETRY_INTERVAL) || (memoryStatus && !lastMemoryStatus)) {
         lastWiFiAttempt = millis();
         Serial.println("[GlobalNetwork] Attempting to reconnect to WiFi network " + Memory::getSSID());
         startWiFiConnection(false);
     }
+    
+    lastMemoryStatus = memoryStatus;
 }
 
 void GlobalNetwork::onWiFiEvent(WiFiEvent_t event) {
