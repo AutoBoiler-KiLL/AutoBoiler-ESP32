@@ -1,7 +1,7 @@
 #include "LocalNetwork.h"
 
-#include <Memory.h>
-#include "KiLL.h" // Full definition of KiLL needed for static methods
+#include "Memory.h"
+#include "KiLL.h"
 
 LocalNetwork::LocalNetwork() : server(HTTP_PORT) {}
 

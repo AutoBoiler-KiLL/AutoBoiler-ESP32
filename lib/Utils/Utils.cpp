@@ -1,8 +1,7 @@
 #include "Utils.h"
 
-#include <Arduino.h> // For Serial
-#include <KiLL.h>    // For KiLL::espId()
-#include <Memory.h>  // For Memory::getAppId()
+#include "KiLL.h"
+#include "Memory.h"
 
 namespace Utils {
     bool verifyRequest(JsonDocument document) {

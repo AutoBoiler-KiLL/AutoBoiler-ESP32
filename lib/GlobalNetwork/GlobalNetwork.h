@@ -4,8 +4,8 @@
 #include <WebSocketsClient.h>
 #include <WiFi.h>
 
-#include <LocalNetwork.h>
-#include <Memory.h>
+#include "LocalNetwork.h"
+#include "Memory.h"
 
 class GlobalNetwork {
 public:

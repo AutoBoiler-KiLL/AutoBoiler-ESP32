@@ -6,8 +6,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-// #include "KiLL.h" // Removed to break circular dependency, use forward declaration if KiLL type is needed.
-class KiLL; // Forward declaration for KiLL
+class KiLL;
 
 #include "Utils.h"
 
