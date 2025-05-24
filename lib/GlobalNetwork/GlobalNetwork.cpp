@@ -79,6 +79,7 @@ void GlobalNetwork::webSocketEvent(WStype_t type, uint8_t* payload, size_t lengt
             if (!Utils::verifyRequest(document)) return;
 
             // TODO: Handle command
+            webSocket.sendTXT("{\"status\": \"OK\"}");
             break;
     }
 }

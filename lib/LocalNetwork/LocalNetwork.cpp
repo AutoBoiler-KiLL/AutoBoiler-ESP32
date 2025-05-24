@@ -142,4 +142,5 @@ void LocalNetwork::handleCommand() {
     String value = document["value"] | "";
 
     // TODO: Implement command handling
+    server.send(200, "application/json", "{\"status\": \"OK\"}");
 }

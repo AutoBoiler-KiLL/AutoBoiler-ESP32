@@ -1,15 +1,15 @@
 #include <Arduino.h>
 #include <KiLL.h>
 
-KiLL kill;
+KiLL smartBoiler;
 
 void setup() {
   Serial.begin(115200);
-  kill.setup();
+  smartBoiler.setup();
 }
 
 void loop() {
-  kill.keepLocalServerAlive();
-  kill.checkForFactoryReset();
-  kill.tryToReconnectToWifi();
+  smartBoiler.keepLocalServerAlive();
+  smartBoiler.checkForFactoryReset();
+  smartBoiler.tryToReconnectToWifi();
 }
