@@ -10,12 +10,12 @@ void KiLL::setup() {
     pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
     Memory::initialize();
     localNetwork.setupLocalNetwork();
+    localNetwork.setupServer();
 
     if (Memory::verifyContent()) {
         globalNetwork.startWiFiConnection();
     } else {
         localNetwork.initialize();
-        localNetwork.setupServer();
     }
 }
 

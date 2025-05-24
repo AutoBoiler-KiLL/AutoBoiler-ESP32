@@ -36,7 +36,7 @@ void LocalNetwork::setupServer() {
 
 void LocalNetwork::startServer() {
     server.begin();
-    Serial.println("[LocalNetwork] Local server started");
+    Serial.println("[LocalNetwork] Local server started at " + getHostname());
 }
 
 void LocalNetwork::stopServer() {
