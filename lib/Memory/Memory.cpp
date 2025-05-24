@@ -2,6 +2,7 @@
 
 void Memory::initialize() {
     EEPROM.begin(EEPROM_SIZE);
+    Serial.println("[Memory] EEPROM initialized");
 }
 
 bool Memory::verifyContent() {

@@ -24,13 +24,14 @@ KiLL::~KiLL() {
 void KiLL::setup() {
     pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
     Memory::initialize();
+    
+    localNetwork->initialize();
     localNetwork->setupLocalNetwork();
     localNetwork->setupServer();
 
     if (Memory::verifyContent()) {
         globalNetwork->startWiFiConnection();
-    } else {
-        localNetwork->initialize();
+        localNetwork->stopAccessPoint();
     }
 }
 
