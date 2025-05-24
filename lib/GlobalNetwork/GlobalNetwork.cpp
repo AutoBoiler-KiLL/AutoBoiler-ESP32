@@ -1,6 +1,7 @@
-#include <Memory.h>
-#include <GlobalNetwork.h>
-#include <Utils.h>
+#include "GlobalNetwork.h"
+#include "LocalNetwork.h"
+#include "Utils.h"
+#include "Memory.h"
 
 GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork) : localNetwork(localNetwork) {
     lastWiFiAttempt = 0;

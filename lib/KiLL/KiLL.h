@@ -3,12 +3,14 @@
 
 #include <Arduino.h>
 
-#include <GlobalNetwork.h>
-#include <LocalNetwork.h>
+// Forward declarations are sufficient for pointers
+class LocalNetwork;
+class GlobalNetwork;
 
 class KiLL {
 public:
     KiLL();
+    ~KiLL(); // Destructor to manage pointed-to objects
 
     void setup();
     
@@ -35,8 +37,8 @@ private:
     bool factoryButtonPressed;
     unsigned long factoryButtonPressedTime;
 
-    LocalNetwork localNetwork;
-    GlobalNetwork globalNetwork;
+    LocalNetwork* localNetwork;   // Pointer to LocalNetwork object
+    GlobalNetwork* globalNetwork; // Pointer to GlobalNetwork object
 };
 
 #endif

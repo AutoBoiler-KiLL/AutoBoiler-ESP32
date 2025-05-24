@@ -16,9 +16,6 @@ public:
     /// @brief Tries to reconnect to WiFi if it is not connected and the memory is valid
     void tryReconnectWiFi();
 
-    /// @brief Handles WebSocket events
-    void webSocketEvent(WStype_t type, uint8_t* payload, size_t length);
-
     bool isConnectedToWifi();
 
 private:

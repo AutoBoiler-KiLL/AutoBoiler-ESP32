@@ -1,21 +1,40 @@
-#include <Memory.h>
-#include <KiLL.h>
+#include "KiLL.h"
 
-KiLL::KiLL() : globalNetwork(localNetwork) {
+#include <Arduino.h>       // For pinMode, millis, Serial, etc.
+#include <Memory.h>        // For Memory functions
+#include "GlobalNetwork.h" // Definition for GlobalNetwork
+#include "LocalNetwork.h"  // Definition for LocalNetwork
+
+// Constructor: Initialize pointers and allocate objects
+KiLL::KiLL() {
+    localNetwork = new LocalNetwork();       // Allocate LocalNetwork object
+    // Pass the now valid localNetwork pointer to GlobalNetwork constructor if needed
+    // Assuming GlobalNetwork constructor takes LocalNetwork* or LocalNetwork&
+    // If GlobalNetwork needs localNetwork during its construction, ensure order or pass *localNetwork
+    globalNetwork = new GlobalNetwork(*localNetwork); // Example: If GlobalNetwork constructor needs a LocalNetwork reference
+
     factoryButtonPressed = false;
     factoryButtonPressedTime = 0;
+}
+
+// Destructor: Clean up allocated objects
+KiLL::~KiLL() {
+    delete localNetwork;
+    delete globalNetwork;
+    localNetwork = nullptr;  // Good practice to nullify pointers after deletion
+    globalNetwork = nullptr;
 }
 
 void KiLL::setup() {
     pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
     Memory::initialize();
-    localNetwork.setupLocalNetwork();
-    localNetwork.setupServer();
+    localNetwork->setupLocalNetwork(); // Use -> for pointers
+    localNetwork->setupServer();       // Use -> for pointers
 
     if (Memory::verifyContent()) {
-        globalNetwork.startWiFiConnection();
+        globalNetwork->startWiFiConnection(); // Use -> for pointers
     } else {
-        localNetwork.initialize();
+        localNetwork->initialize();         // Use -> for pointers
     }
 }
 
@@ -27,13 +46,13 @@ const String KiLL::espId() {
 }
 
 void KiLL::keepLocalServerAlive() {
-    if (globalNetwork.isConnectedToWifi()) {
-        localNetwork.keepServerAlive();
+    if (globalNetwork->isConnectedToWifi()) { // Use -> for pointers
+        localNetwork->keepServerAlive();      // Use -> for pointers
     }
 }
 
 void KiLL::tryToReconnectToWifi() {
-    globalNetwork.tryReconnectWiFi();
+    globalNetwork->tryReconnectWiFi(); // Use -> for pointers
 }
 
 void KiLL::checkForFactoryReset() {
