@@ -122,6 +122,12 @@ void LocalNetwork::handleNotFound() {
 }
 
 void LocalNetwork::handleSetup() {
+    if (Memory::verifyContent()) {
+        Serial.println("[LocalNetwork] Error: Tried to setup KiLL twice.");
+        server.send(400, "application/json", "{\"error\": \"KiLL already setup.\"}");
+        return;
+    }
+
     JsonDocument document;
     if (!checkRequestData(document, "setup")) return;
 

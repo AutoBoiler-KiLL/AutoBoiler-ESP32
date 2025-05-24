@@ -11,10 +11,10 @@ GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork) : localNetwork(localNet
     WiFi.onEvent(std::bind(&GlobalNetwork::onWiFiEvent, this, std::placeholders::_1), WiFiEvent_t::ARDUINO_EVENT_MAX);
 }
 
-void GlobalNetwork::startWiFiConnection() {
+void GlobalNetwork::startWiFiConnection(const bool debug) {
     String ssid = Memory::getSSID();
     String password = Memory::getPassword();
-    Serial.println("[GlobalNetwork] Connecting to WiFi network: " + ssid);
+    if (debug) Serial.println("[GlobalNetwork] Connecting to WiFi network: " + ssid);
     WiFi.begin(ssid, password);
     lastWiFiAttempt = millis();
 }
@@ -26,8 +26,8 @@ bool GlobalNetwork::isConnectedToWifi() {
 void GlobalNetwork::tryReconnectWiFi() {
     if (Memory::verifyContent() && !wifiConnected && millis() - lastWiFiAttempt > WIFI_RETRY_INTERVAL) {
         lastWiFiAttempt = millis();
-        Serial.println("[GlobalNetwork] Attempting to reconnect to WiFi...");
-        startWiFiConnection();
+        Serial.println("[GlobalNetwork] Attempting to reconnect to WiFi network " + Memory::getSSID());
+        startWiFiConnection(false);
     }
 }
 
@@ -40,12 +40,11 @@ void GlobalNetwork::onWiFiEvent(WiFiEvent_t event) {
             connectWebSocket();
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
+            if (!wifiConnected) return;
             Serial.println("[GlobalNetwork] WiFi disconnected, enabling SoftAP and local server");
             wifiConnected = false;
             localNetwork.initialize();
             localNetwork.startServer();
-            break;
-        default:
             break;
     }
 }

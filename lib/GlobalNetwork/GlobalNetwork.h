@@ -12,7 +12,7 @@ public:
     GlobalNetwork(LocalNetwork& localNetwork);
 
     /// @brief Connects to WiFi using credentials stored in memory
-    void startWiFiConnection();
+    void startWiFiConnection(const bool debug = true);
     /// @brief Tries to reconnect to WiFi if it is not connected and the memory is valid
     void tryReconnectWiFi();
 
@@ -20,7 +20,7 @@ public:
 
 private:
     const String serverURL = "smartboiler-server.onrender.com";
-    static constexpr unsigned long WIFI_RETRY_INTERVAL = 5000;
+    static constexpr unsigned long WIFI_RETRY_INTERVAL = 60 * 1000;
 
     LocalNetwork& localNetwork;
     unsigned long lastWiFiAttempt;
