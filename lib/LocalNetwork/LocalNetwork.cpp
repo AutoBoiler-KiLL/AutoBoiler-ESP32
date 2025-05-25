@@ -33,7 +33,15 @@ void LocalNetwork::onStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info
 
 void LocalNetwork::initialize() {
     WiFi.mode(WIFI_AP_STA);
+    
+    // Configure custom IP for soft AP
+    IPAddress local_IP(192, 168, 39, 12);
+    IPAddress gateway(192, 168, 39, 1);
+    IPAddress subnet(255, 255, 255, 0);
+    
+    WiFi.softAPConfig(local_IP, gateway, subnet);
     WiFi.softAP(SSID());
+    
     Serial.println("[LocalNetwork] WiFi Access Point started");
     Serial.println("[LocalNetwork] IP Address: " + WiFi.softAPIP().toString());
 
@@ -48,9 +56,8 @@ void LocalNetwork::stopAccessPoint() {
 }
 
 void LocalNetwork::setupServer() {
-    Serial.println("[LocalNetwork] Setting up local server");
-
     server.on("/", HTTP_GET, std::bind(&LocalNetwork::handleRoot, this));
+    server.on("/local", HTTP_GET, std::bind(&LocalNetwork::handleLocal, this));
     server.onNotFound(std::bind(&LocalNetwork::handleNotFound, this));
     server.on("/setup", HTTP_POST, std::bind(&LocalNetwork::handleSetup, this));
     server.on("/kill_reset_factory", HTTP_POST, std::bind(&LocalNetwork::handleResetFactory, this));
@@ -115,6 +122,10 @@ bool LocalNetwork::checkRequestData(JsonDocument& document, const String source)
 
 void LocalNetwork::handleRoot() {
     server.send(200, "text/plain", "KiLL");
+}
+
+void LocalNetwork::handleLocal() {
+    server.send(200, "text/plain", SSID());
 }
 
 void LocalNetwork::handleNotFound() {

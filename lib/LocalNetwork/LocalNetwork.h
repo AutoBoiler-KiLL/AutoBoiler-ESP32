@@ -48,6 +48,8 @@ private:
 
     /// @brief Root to check if the ESP32 is reachable
     void handleRoot();
+    /// @brief Root to get the SSID of the local network
+    void handleLocal();
     /// @brief Root for not found
     void handleNotFound();
     /// @brief Root to setup the KiLL
