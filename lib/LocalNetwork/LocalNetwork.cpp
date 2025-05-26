@@ -154,6 +154,28 @@ void LocalNetwork::handleSetup() {
 
     Serial.println("[LocalNetwork] Received data on setup: SSID: " + ssid + ", Password: " + password + ", App ID: " + appId);
 
+    // Test WiFi connection before saving credentials
+    Serial.print("[LocalNetwork] Testing WiFi connection");
+    WiFi.begin(ssid, password);
+    
+    unsigned long startTime = millis();
+    const unsigned long timeout = 30 * 1000;
+    
+    while (WiFi.status() != WL_CONNECTED && millis() - startTime < timeout) {
+        delay(500);
+        Serial.print(".");
+    }
+    
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("\n[LocalNetwork] Error: Failed to connect to WiFi network");
+        WiFi.disconnect();
+        server.send(400, "application/json", "{\"error\": \"Failed to connect to WiFi network. Verify credentials and try again.\"}");
+        return;
+    }
+    
+    Serial.println("\n[LocalNetwork] WiFi connection test successful");
+    WiFi.disconnect(); // Disconnect from test connection
+    
     server.send(200, "application/json", "{\"status\": \"OK\"}");
 
     Memory::write(ssid, password, appId);
