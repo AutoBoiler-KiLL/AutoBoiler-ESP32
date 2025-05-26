@@ -125,7 +125,7 @@ void LocalNetwork::handleRoot() {
 }
 
 void LocalNetwork::handleLocal() {
-    server.send(200, "text/plain", SSID());
+    server.send(200, "text/plain", KiLL::espId());
 }
 
 void LocalNetwork::handleNotFound() {
