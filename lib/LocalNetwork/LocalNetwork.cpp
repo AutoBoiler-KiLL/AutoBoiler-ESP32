@@ -174,7 +174,10 @@ void LocalNetwork::handleSetup() {
     }
     
     Serial.println("\n[LocalNetwork] WiFi connection test successful");
-    WiFi.disconnect(); // Disconnect from test connection
+    WiFi.disconnect();
+ 
+    // Delay to allow the server to send the response
+    delay(5000);
     
     server.send(200, "application/json", "{\"status\": \"OK\"}");
 
