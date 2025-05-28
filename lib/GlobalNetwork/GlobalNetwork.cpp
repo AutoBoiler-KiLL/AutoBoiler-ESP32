@@ -46,8 +46,8 @@ void GlobalNetwork::onWiFiEvent(WiFiEvent_t event) {
             if (!Memory::verifyContent()) return;
             Serial.println("[GlobalNetwork] WiFi got IP address: " + WiFi.localIP().toString() + " Connecting to server...");
             wifiConnected = true;
-            // localNetwork.stopAccessPoint();
-            connectWebSocket();
+            localNetwork.stopAccessPoint();
+            // connectWebSocket();
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             if (!wifiConnected) return;
