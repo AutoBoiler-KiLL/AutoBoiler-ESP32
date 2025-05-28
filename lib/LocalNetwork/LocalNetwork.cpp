@@ -208,7 +208,21 @@ void LocalNetwork::handleCommand() {
     String command = document["command"] | "";
     String value = document["value"] | "";
 
-    // TODO: Implement command handling
+    if (command == "turn_on") {
+        boiler.turnOn();
+    } else if (command == "turn_off") {
+        boiler.turnOff();
+    } else if (command == "set_temperature") {
+        Serial.println("[LocalNetwork] Setting temperature to " + document["value"].as<String>());
+        int temperature = value.toInt();
+        if (temperature < KiLL::MINIMUM_TEMPERATURE || temperature > KiLL::MAXIMUM_TEMPERATURE) {
+            server.send(400, "application/json", "{\"error\": \"Temperature " + String(temperature) + " out of range\"}");
+            return;
+        }
+
+        boiler.setTargetTemperature(temperature);
+    }
+
     server.send(200, "application/json", "{\"status\": \"OK\"}");
 }
 
@@ -220,5 +234,8 @@ void LocalNetwork::handleStatus() {
         return;
     }
 
-    server.send(200, "application/json", "{\"targetTemperature\": " + String(Memory::getTemperature()) + ", \"currentTemperature\": " + String(random(25000, 50000) / 1000.0) + ", \"isOn\": " + String(boiler.getIsOn()) + ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\"}");
+    server.send(200, "application/json", "{\"targetTemperature\": " + String(Memory::getTemperature()) + 
+    ", \"currentTemperature\": " + String(random(25000, 50000) / 1000.0) + 
+    ", \"isOn\": " + String(boiler.getIsOn()) + 
+    ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\"}");
 }

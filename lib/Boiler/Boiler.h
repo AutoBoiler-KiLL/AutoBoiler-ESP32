@@ -6,6 +6,8 @@ public:
     Boiler();
 
     void setTargetTemperature(int temperature);
+    void turnOn();
+    void turnOff();
 
     double getCurrentTemperature();
     bool getIsOn();
