@@ -3,7 +3,7 @@
 #include "Memory.h"
 #include "KiLL.h"
 
-LocalNetwork::LocalNetwork() : server(HTTP_PORT) {}
+LocalNetwork::LocalNetwork(Boiler& boiler) : server(HTTP_PORT), boiler(boiler) {}
 
 const String LocalNetwork::getHostname() {
     return "http://KiLL-" + KiLL::espId() + ".local/";
@@ -62,6 +62,7 @@ void LocalNetwork::setupServer() {
     server.on("/setup", HTTP_POST, std::bind(&LocalNetwork::handleSetup, this));
     server.on("/kill_reset_factory", HTTP_POST, std::bind(&LocalNetwork::handleResetFactory, this));
     server.on("/command", HTTP_POST, std::bind(&LocalNetwork::handleCommand, this));
+    server.on("/status", HTTP_POST, std::bind(&LocalNetwork::handleStatus, this));
 
     startServer();
 }
@@ -125,7 +126,7 @@ void LocalNetwork::handleRoot() {
 }
 
 void LocalNetwork::handleLocal() {
-    server.send(200, "text/plain", SSID());
+    server.send(200, "text/plain", KiLL::espId());
 }
 
 void LocalNetwork::handleNotFound() {
@@ -154,6 +155,31 @@ void LocalNetwork::handleSetup() {
 
     Serial.println("[LocalNetwork] Received data on setup: SSID: " + ssid + ", Password: " + password + ", App ID: " + appId);
 
+    // Test WiFi connection before saving credentials
+    Serial.print("[LocalNetwork] Testing WiFi connection");
+    WiFi.begin(ssid, password);
+    
+    unsigned long startTime = millis();
+    const unsigned long timeout = 30 * 1000;
+    
+    while (WiFi.status() != WL_CONNECTED && millis() - startTime < timeout) {
+        delay(500);
+        Serial.print(".");
+    }
+    
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("\n[LocalNetwork] Error: Failed to connect to WiFi network");
+        WiFi.disconnect();
+        server.send(400, "application/json", "{\"error\": \"Failed to connect to WiFi network. Verify credentials and try again.\"}");
+        return;
+    }
+    
+    Serial.println("\n[LocalNetwork] WiFi connection test successful");
+    WiFi.disconnect();
+ 
+    // Delay to allow the server to send the response
+    delay(5000);
+    
     server.send(200, "application/json", "{\"status\": \"OK\"}");
 
     Memory::write(ssid, password, appId);
@@ -182,6 +208,34 @@ void LocalNetwork::handleCommand() {
     String command = document["command"] | "";
     String value = document["value"] | "";
 
-    // TODO: Implement command handling
+    if (command == "turn_on") {
+        boiler.turnOn();
+    } else if (command == "turn_off") {
+        boiler.turnOff();
+    } else if (command == "set_temperature") {
+        Serial.println("[LocalNetwork] Setting temperature to " + document["value"].as<String>());
+        int temperature = value.toInt();
+        if (temperature < KiLL::MINIMUM_TEMPERATURE || temperature > KiLL::MAXIMUM_TEMPERATURE) {
+            server.send(400, "application/json", "{\"error\": \"Temperature " + String(temperature) + " out of range\"}");
+            return;
+        }
+
+        boiler.setTargetTemperature(temperature);
+    }
+
     server.send(200, "application/json", "{\"status\": \"OK\"}");
+}
+
+void LocalNetwork::handleStatus() {
+    JsonDocument document;
+    if (!checkRequestData(document, "command")) return;
+    if (!Utils::verifyRequest(document)) {
+        server.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
+        return;
+    }
+
+    server.send(200, "application/json", "{\"targetTemperature\": " + String(Memory::getTemperature()) + 
+    ", \"currentTemperature\": " + String(random(25000, 50000) / 1000.0) + 
+    ", \"isOn\": " + String(boiler.getIsOn()) + 
+    ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\"}");
 }

@@ -5,6 +5,7 @@
 
 class LocalNetwork;
 class GlobalNetwork;
+class Boiler;
 
 class KiLL {
 public:
@@ -26,10 +27,10 @@ public:
     void keepServersAlive();
     void tryToReconnectToWifi();
 
-private:
-    static constexpr uint8_t MINIMUM_TEMPERATURE = 25;
-    static constexpr uint8_t MAXIMUM_TEMPERATURE = 45;
+    static constexpr uint8_t MINIMUM_TEMPERATURE = 23;
+    static constexpr uint8_t MAXIMUM_TEMPERATURE = 50;
 
+private:
     static constexpr uint8_t FACTORY_RESET_PIN = 10;
     static constexpr uint16_t FACTORY_RESET_HOLD_TIME = 10000;
 
@@ -38,6 +39,7 @@ private:
 
     LocalNetwork* localNetwork;
     GlobalNetwork* globalNetwork;
+    Boiler* boiler;
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "GlobalNetwork.h"
 
-GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork) : localNetwork(localNetwork) {
+GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork, Boiler& boiler) : localNetwork(localNetwork), boiler(boiler) {
     lastWiFiAttempt = 0;
     wifiConnected = false;
     lastMemoryStatus = false;
@@ -43,10 +43,11 @@ void GlobalNetwork::onWiFiEvent(WiFiEvent_t event) {
             Serial.println("[GlobalNetwork] WiFi connected to network");
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
-            Serial.println("[GlobalNetwork] WiFi got IP address: " + String(WiFi.localIP()) + " Connecting to server...");
+            if (!Memory::verifyContent()) return;
+            Serial.println("[GlobalNetwork] WiFi got IP address: " + WiFi.localIP().toString() + " Connecting to server...");
             wifiConnected = true;
-            // localNetwork.stopAccessPoint();
-            connectWebSocket();
+            localNetwork.stopAccessPoint();
+            // connectWebSocket();
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             if (!wifiConnected) return;

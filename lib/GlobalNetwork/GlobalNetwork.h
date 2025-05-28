@@ -7,10 +7,11 @@
 #include "LocalNetwork.h"
 #include "Memory.h"
 #include "Utils.h"
+#include "Boiler.h"
 
 class GlobalNetwork {
 public:
-    GlobalNetwork(LocalNetwork& localNetwork);
+    GlobalNetwork(LocalNetwork& localNetwork, Boiler& boiler);
 
     /// @brief Connects to WiFi using credentials stored in memory
     void startWiFiConnection(const bool debug = true);
@@ -31,6 +32,7 @@ private:
     volatile bool lastMemoryStatus;
     volatile bool isConnectedToServer;
 
+    Boiler& boiler;
     WebSocketsClient webSocket;
 
     /// @brief Handles WiFi events

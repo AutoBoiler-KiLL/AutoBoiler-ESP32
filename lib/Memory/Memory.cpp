@@ -28,6 +28,7 @@ int Memory::getTemperature() {
 }
 
 void Memory::write(String ssid, String password, String appId) {
+    Serial.println("[Memory] Writing credentials to memory");
     EEPROM.writeString(SSID_ADDRESS, ssid);
     EEPROM.writeString(PASS_ADDRESS, password);
     EEPROM.writeString(APP_ID_ADDRESS, appId);
@@ -35,6 +36,7 @@ void Memory::write(String ssid, String password, String appId) {
 }
 
 void Memory::writeTemperature(int temperature) {
+    Serial.println("[Memory] Writing temperature " + String(temperature) + "º to memory");
     EEPROM.writeInt(TEMPERATURE_ADDRESS, temperature);
     EEPROM.commit();
 }
