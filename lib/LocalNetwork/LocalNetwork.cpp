@@ -62,7 +62,8 @@ void LocalNetwork::setupServer() {
     server.on("/setup", HTTP_POST, std::bind(&LocalNetwork::handleSetup, this));
     server.on("/kill_reset_factory", HTTP_POST, std::bind(&LocalNetwork::handleResetFactory, this));
     server.on("/command", HTTP_POST, std::bind(&LocalNetwork::handleCommand, this));
-    server.on("/status", HTTP_GET, std::bind(&LocalNetwork::handleStatus, this));
+    server.on("/status", HTTP_POST, std::bind(&LocalNetwork::handleStatus, this));
+    server.on("/local_ip", HTTP_POST, std::bind(&LocalNetwork::handleLocalIP, this));
 
     startServer();
 }
@@ -220,5 +221,9 @@ void LocalNetwork::handleStatus() {
         return;
     }
 
-    server.send(200, "application/json", "{\"targetTemperature\": " + String(Memory::getTemperature()) + "}");
+    server.send(200, "application/json", "{\"targetTemperature\": " + String(Memory::getTemperature()) + ", \"currentTemperature\": " + String(random(25000, 50000) / 1000.0) + ", \"isOn\": " + String(boiler.getIsOn()) + "}");
+}
+
+void LocalNetwork::handleLocalIP() {
+    server.send(200, "text/plain", WiFi.localIP().toString());
 }

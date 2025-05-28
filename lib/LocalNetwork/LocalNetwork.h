@@ -63,6 +63,8 @@ private:
     void handleCommand();
     /// @brief Root to get the status of the Boiler
     void handleStatus();
+    /// @brief Root to get the local IP address
+    void handleLocalIP();
 };
 
 #endif

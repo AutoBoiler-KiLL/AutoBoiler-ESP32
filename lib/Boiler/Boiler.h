@@ -8,9 +8,11 @@ public:
     void setTargetTemperature(int temperature);
 
     double getCurrentTemperature();
+    bool getIsOn();
 
 private:
     double currentTemperature;
+    bool isOn;
 };
 
 #endif

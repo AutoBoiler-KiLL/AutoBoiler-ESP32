@@ -3,6 +3,7 @@
 
 Boiler::Boiler() {
     currentTemperature = 25;
+    isOn = true;
 }
 
 void Boiler::setTargetTemperature(int temperature) {
@@ -11,4 +12,8 @@ void Boiler::setTargetTemperature(int temperature) {
 
 double Boiler::getCurrentTemperature() {
     return currentTemperature;
+}
+
+bool Boiler::getIsOn() {
+    return isOn;
 }
