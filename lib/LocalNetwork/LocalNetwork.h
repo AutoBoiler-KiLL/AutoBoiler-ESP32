@@ -9,10 +9,11 @@
 class KiLL;
 
 #include "Utils.h"
+#include "Boiler.h"
 
 class LocalNetwork {
 public:
-    LocalNetwork();
+    LocalNetwork(Boiler& boiler);
 
     void initialize();
     void stopAccessPoint();
@@ -41,7 +42,9 @@ private:
 
     static void onStationConnected(WiFiEvent_t event, WiFiEventInfo_t info);
     static void onStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info);
-    
+
+    Boiler& boiler;
+
     /// MARK: Routes
 
     bool checkRequestData(JsonDocument& document, const String source);
@@ -58,6 +61,8 @@ private:
     void handleResetFactory();
     /// @brief Root to manage commands for turning on/off and setting the temperature
     void handleCommand();
+    /// @brief Root to get the status of the Boiler
+    void handleStatus();
 };
 
 #endif

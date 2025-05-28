@@ -3,7 +3,7 @@
 #include "Memory.h"
 #include "KiLL.h"
 
-LocalNetwork::LocalNetwork() : server(HTTP_PORT) {}
+LocalNetwork::LocalNetwork(Boiler& boiler) : server(HTTP_PORT), boiler(boiler) {}
 
 const String LocalNetwork::getHostname() {
     return "http://KiLL-" + KiLL::espId() + ".local/";
@@ -62,6 +62,7 @@ void LocalNetwork::setupServer() {
     server.on("/setup", HTTP_POST, std::bind(&LocalNetwork::handleSetup, this));
     server.on("/kill_reset_factory", HTTP_POST, std::bind(&LocalNetwork::handleResetFactory, this));
     server.on("/command", HTTP_POST, std::bind(&LocalNetwork::handleCommand, this));
+    server.on("/status", HTTP_GET, std::bind(&LocalNetwork::handleStatus, this));
 
     startServer();
 }
@@ -209,4 +210,15 @@ void LocalNetwork::handleCommand() {
 
     // TODO: Implement command handling
     server.send(200, "application/json", "{\"status\": \"OK\"}");
+}
+
+void LocalNetwork::handleStatus() {
+    JsonDocument document;
+    if (!checkRequestData(document, "command")) return;
+    if (!Utils::verifyRequest(document)) {
+        server.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
+        return;
+    }
+
+    server.send(200, "application/json", "{\"targetTemperature\": " + String(Memory::getTemperature()) + "}");
 }

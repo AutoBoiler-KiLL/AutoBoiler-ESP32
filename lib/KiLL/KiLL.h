@@ -5,6 +5,7 @@
 
 class LocalNetwork;
 class GlobalNetwork;
+class Boiler;
 
 class KiLL {
 public:
@@ -38,6 +39,7 @@ private:
 
     LocalNetwork* localNetwork;
     GlobalNetwork* globalNetwork;
+    Boiler* boiler;
 };
 
 #endif

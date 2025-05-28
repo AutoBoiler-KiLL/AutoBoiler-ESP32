@@ -5,11 +5,12 @@
 #include "Memory.h"        
 #include "GlobalNetwork.h"
 #include "LocalNetwork.h" 
+#include "Boiler.h"
 
 KiLL::KiLL() {
-    localNetwork = new LocalNetwork();      
-    globalNetwork = new GlobalNetwork(*localNetwork);
-
+    boiler = new Boiler();
+    localNetwork = new LocalNetwork(*boiler);      
+    globalNetwork = new GlobalNetwork(*localNetwork, *boiler);
     factoryButtonPressed = false;
     factoryButtonPressedTime = 0;
 }
@@ -17,8 +18,10 @@ KiLL::KiLL() {
 KiLL::~KiLL() {
     delete localNetwork;
     delete globalNetwork;
+    delete boiler;
     localNetwork = nullptr;
     globalNetwork = nullptr;
+    boiler = nullptr;
 }
 
 void KiLL::setup() {

@@ -1,6 +1,6 @@
 #include "GlobalNetwork.h"
 
-GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork) : localNetwork(localNetwork) {
+GlobalNetwork::GlobalNetwork(LocalNetwork& localNetwork, Boiler& boiler) : localNetwork(localNetwork), boiler(boiler) {
     lastWiFiAttempt = 0;
     wifiConnected = false;
     lastMemoryStatus = false;
