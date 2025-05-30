@@ -7,7 +7,6 @@ class LocalNetwork;
 class GlobalNetwork;
 class Boiler;
 class Display;
-class TemperatureSensor;
 
 class KiLL {
 public:
@@ -34,6 +33,8 @@ public:
 
     void checkUserInteraction();
 
+    void controlTemperature();
+
 private:
     static constexpr uint8_t FACTORY_RESET_PIN = 10;
     static constexpr uint16_t FACTORY_RESET_HOLD_TIME = 10000;
@@ -48,7 +49,6 @@ private:
     GlobalNetwork* globalNetwork;
     Boiler* boiler;
     Display* display;
-    TemperatureSensor* temperatureSensor;
 };
 
 #endif

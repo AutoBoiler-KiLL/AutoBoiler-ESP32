@@ -1,13 +1,22 @@
 #include "Boiler.h"
 #include "Memory.h"
+#include "TemperatureSensor.h"
 
 Boiler::Boiler() {
-    currentTemperature = 25;
+    temperatureSensor = new TemperatureSensor();
+    currentTemperature = 0;
     isOn = true;
+}
+
+void Boiler::begin(){
+    temperatureSensor->begin();
+    currentTargetTemperature = Memory::getTemperature();
+    currentTemperature = temperatureSensor->readTemperature(0);
 }
 
 void Boiler::setTargetTemperature(int temperature) {
     Memory::writeTemperature(temperature);
+    currentTargetTemperature = temperature;
 }
 
 void Boiler::turnOn() {
@@ -21,7 +30,6 @@ void Boiler::turnOff() {
 }
 
 double Boiler::getCurrentTemperature() {
-    currentTemperature = random(25000, 50000) / 1000.0;
     return currentTemperature;
 }
 
@@ -30,9 +38,11 @@ bool Boiler::getIsOn() {
 }
 
 int Boiler::getTargetTemperature(){
-    return Memory::getTemperature();
+    return currentTargetTemperature;
 }
 
-void Boiler::setCurrentTemperature(double temperature) {
-    currentTemperature;
+double Boiler::controlTemperature(){
+    currentTemperature = temperatureSensor->readTemperature(0);
+    //Aqui ira el control
+    return currentTemperature;
 }

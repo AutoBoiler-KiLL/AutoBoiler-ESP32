@@ -7,10 +7,8 @@
 #include "LocalNetwork.h" 
 #include "Boiler.h"
 #include "Display.h"
-#include "TemperatureSensor.h"
 
 KiLL::KiLL() {
-    temperatureSensor = new TemperatureSensor();
     display = new Display();
     boiler = new Boiler();
     localNetwork = new LocalNetwork(*boiler);      
@@ -42,8 +40,8 @@ void KiLL::setup() {
     if (Memory::verifyContent()) {
         globalNetwork->startWiFiConnection();
     }
-    display->beginDisplay();
-    temperatureSensor->begin();
+    boiler->begin();
+    display->beginDisplay(boiler->getTargetTemperature(), boiler->getCurrentTemperature());
 }
 
 const String KiLL::espId() {
@@ -96,21 +94,23 @@ void KiLL::resetToFactorySettings() {
 void KiLL::checkUserInteraction(){
     if(digitalRead(DOWN_SETPOINT) == LOW){
         int currentTargetTemperature = boiler->getTargetTemperature();
-        double currentTemperature = boiler->getCurrentTemperature();
-
         boiler->setTargetTemperature(currentTargetTemperature - 1);
-        display->show(currentTargetTemperature, currentTemperature);
+        display->updateSetPoint(currentTargetTemperature);
         delay(200);
     }
 
     if(digitalRead(UP_SETPOINT) == LOW){
         int currentTargetTemperature = boiler->getTargetTemperature();
-        double currentTemperature = boiler->getCurrentTemperature();
-
         boiler->setTargetTemperature(currentTargetTemperature + 1);
-        display->show(currentTargetTemperature, currentTemperature);
+        display->updateSetPoint(currentTargetTemperature);
         delay(200);
     }
 
     checkForFactoryReset();
+}
+
+void KiLL::controlTemperature(){
+
+    display->updateTrueValue(boiler->controlTemperature());
+
 }

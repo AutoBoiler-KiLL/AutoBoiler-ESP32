@@ -4,8 +4,6 @@
 #include <TemperatureSensor.h>
 
 KiLL smartBoiler;
-Display display;
-TemperatureSensor temperatureSensor;
 
 void setup() {
   Serial.begin(115200);
@@ -14,6 +12,8 @@ void setup() {
 
 void loop() {
   smartBoiler.keepServersAlive();
-  smartBoiler.checkUserInteraction();
   smartBoiler.tryToReconnectToWifi();
+
+  smartBoiler.checkUserInteraction();
+  smartBoiler.controlTemperature();
 }

@@ -1,15 +1,13 @@
 #include "Display.h"
-#include <Arduino.h>
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
-#include <Wire.h>
 
-Display::Display(){
+Display::Display() {
     display = new Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+    setPoint = 0;
+    trueValue = 0.0;
 }
 
-void Display::beginDisplay(){
-    Wire.begin(21, 22); 
+void Display::beginDisplay(int setpoint, double currentValue) {
+    Wire.begin(21, 22);
 
     if (!display->begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
         Serial.println(F("Fallo al iniciar la pantalla OLED"));
@@ -17,11 +15,22 @@ void Display::beginDisplay(){
 
     display->clearDisplay();
     display->display();
-    show(100, 100); 
+    setPoint = setpoint;
+    trueValue = currentValue;
+    show();
 }
 
+void Display::updateSetPoint(int newSetPoint) {
+    setPoint = newSetPoint;
+    show();
+}
 
-void Display::show(int setPoint, float trueValue) {
+void Display::updateTrueValue(float newTrueValue) {
+    trueValue = newTrueValue;
+    show();
+}
+
+void Display::show() {
     display->clearDisplay();
 
     display->setTextSize(4);
