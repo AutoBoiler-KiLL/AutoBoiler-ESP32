@@ -20,7 +20,6 @@ public:
 
     double getCurrentTemperature();
 
-
 private:
     int currentTargetTemperature;
     double currentTemperature;
