@@ -2,11 +2,11 @@
 
 Display::Display() {
     display = new Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-    setPoint = 0;
-    trueValue = 0.0;
+    targetTemperature = 0;
+    currentTemperature = 0.0;
 }
 
-void Display::beginDisplay(int setpoint, double currentValue) {
+void Display::beginDisplay(int initialTargetTemperature, double currentTemperature) {
     Wire.begin(21, 22);
 
     if (!display->begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -15,18 +15,18 @@ void Display::beginDisplay(int setpoint, double currentValue) {
 
     display->clearDisplay();
     display->display();
-    setPoint = setpoint;
-    trueValue = currentValue;
+    targetTemperature = initialTargetTemperature;
+    currentTemperature = currentTemperature;
     show();
 }
 
-void Display::updateSetPoint(int newSetPoint) {
-    setPoint = newSetPoint;
+void Display::updateTargetTemperature(int newTargetTemperature) {
+    targetTemperature = newTargetTemperature;
     show();
 }
 
-void Display::updateTrueValue(float newTrueValue) {
-    trueValue = newTrueValue;
+void Display::updateCurrentTemperature(double newCurrentTemperature) {
+    currentTemperature = newCurrentTemperature;
     show();
 }
 
@@ -36,7 +36,7 @@ void Display::show() {
     display->setTextSize(4);
     display->setTextColor(SSD1306_WHITE);
     display->setCursor(0, 0);
-    display->print(setPoint);
+    display->print(targetTemperature);
     int x = display->getCursorX();
     display->drawCircle(x + 2, 5, 2, SSD1306_WHITE);
     display->setCursor(x + 8, 0);
@@ -44,7 +44,7 @@ void Display::show() {
 
     display->setTextSize(2);
     display->setCursor(5, 40);
-    display->print(trueValue, 2);
+    display->print(currentTemperature, 2);
     x = display->getCursorX();
     display->drawCircle(x + 2, 42, 1, SSD1306_WHITE);
     display->setCursor(x + 8, 40);

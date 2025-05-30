@@ -21,15 +21,17 @@ KiLL::~KiLL() {
     delete localNetwork;
     delete globalNetwork;
     delete boiler;
+    delete display;
     localNetwork = nullptr;
     globalNetwork = nullptr;
     boiler = nullptr;
+    display = nullptr;
 }
 
 void KiLL::setup() {
     pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
-    pinMode(UP_SETPOINT, INPUT_PULLUP);
-    pinMode(DOWN_SETPOINT, INPUT_PULLUP);
+    pinMode(PIN_INCREASE_TARGET_TEMPERATURE, INPUT_PULLUP);
+    pinMode(PIN_DECREASE_TARGET_TEMPERATURE, INPUT_PULLUP);
 
     Memory::initialize();
     
@@ -40,6 +42,7 @@ void KiLL::setup() {
     if (Memory::verifyContent()) {
         globalNetwork->startWiFiConnection();
     }
+
     boiler->begin();
     display->beginDisplay(boiler->getTargetTemperature(), boiler->getCurrentTemperature());
 }
@@ -91,18 +94,18 @@ void KiLL::resetToFactorySettings() {
     ESP.restart();
 }
 
-void KiLL::checkUserInteraction(){
-    if(digitalRead(DOWN_SETPOINT) == LOW){
+void KiLL::checkUserInteraction() {
+    if (digitalRead(PIN_DECREASE_TARGET_TEMPERATURE) == LOW) {
         int currentTargetTemperature = boiler->getTargetTemperature();
         boiler->setTargetTemperature(currentTargetTemperature - 1);
-        display->updateSetPoint(currentTargetTemperature);
+        display->updateTargetTemperature(currentTargetTemperature);
         delay(200);
     }
 
-    if(digitalRead(UP_SETPOINT) == LOW){
+    if (digitalRead(PIN_INCREASE_TARGET_TEMPERATURE) == LOW) {
         int currentTargetTemperature = boiler->getTargetTemperature();
         boiler->setTargetTemperature(currentTargetTemperature + 1);
-        display->updateSetPoint(currentTargetTemperature);
+        display->updateTargetTemperature(currentTargetTemperature);
         delay(200);
     }
 
@@ -111,6 +114,6 @@ void KiLL::checkUserInteraction(){
 
 void KiLL::controlTemperature(){
 
-    display->updateTrueValue(boiler->controlTemperature());
+    display->updateCurrentTemperature(boiler->controlTemperature());
 
 }
