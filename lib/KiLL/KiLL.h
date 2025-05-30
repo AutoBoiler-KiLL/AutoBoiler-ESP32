@@ -39,8 +39,8 @@ private:
     static constexpr uint8_t FACTORY_RESET_PIN = 10;
     static constexpr uint16_t FACTORY_RESET_HOLD_TIME = 10000;
 
-    static constexpr uint8_t UP_SETPOINT = 15;
-    static constexpr uint8_t DOWN_SETPOINT = 4;
+    static constexpr uint8_t PIN_INCREASE_TARGET_TEMPERATURE = 15;
+    static constexpr uint8_t PIN_DECREASE_TARGET_TEMPERATURE = 4;
 
     bool factoryButtonPressed;
     unsigned long factoryButtonPressedTime;
@@ -52,51 +52,3 @@ private:
 };
 
 #endif
-
-/*
-
-#include <ArduinoJson.h>
-#include <WebSocketsClient.h>
-#include <WebServer.h>
-
-/// @brief Handles the command received from the local network or the web socket.
-void handleCommand(JsonDocument& document, WebServer* localServer = nullptr, WebSocketsClient* webSocket = nullptr) {
-    String command = document["command"] | "";
-    String source = localServer ? "[LocalNetwork]" : "[GlobalNetwork]";
-    String response;
-
-    // TODO: Implement the real JSON response (see SmartBoiler-Server)
-    // TODO: Implement the turn on, turn off, set temperature commands
-    if (command == "turn_on") {
-        Serial.println(source + " Command: Turn on");
-        response = "{\"status\": \"OK\"}";
-    } else if (command == "turn_off") {
-        Serial.println(source + " Command: Turn off");
-        response = "{\"status\": \"OK\"}";
-    } else if (command == "set_temperature") {
-        Serial.println(source + " Command: Set temperature");
-        uint8_t temperature = document["temperature"] | 0;
-        if (temperature < MINIMUM_TEMPERATURE || temperature > MAXIMUM_TEMPERATURE) {
-            Serial.println(source + " Error: Invalid temperature value");
-            response = "{\"error\": \"Invalid Temperature\"}";
-        } else {
-            Serial.println(source + " Command: Set temperature to " + String(temperature));
-            writeTemperature(temperature);
-            response = "{\"status\": \"OK\"}";
-        }
-    } else {
-        Serial.println(source + " Error: Invalid command");
-        response = "{\"error\": \"Invalid Command\"}";
-    }
-
-    if (localServer) {
-        localServer->send(200, "application/json", response);
-    } else if (webSocket) {
-        webSocket->sendTXT(response);
-    } else {
-        Serial.println("Error: No local server or web socket available to handle the command.");
-    }
-}
-
-#endif
-*/
