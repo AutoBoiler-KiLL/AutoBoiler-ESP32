@@ -6,8 +6,12 @@
 #include "GlobalNetwork.h"
 #include "LocalNetwork.h" 
 #include "Boiler.h"
+#include "Display.h"
+#include "TemperatureSensor.h"
 
 KiLL::KiLL() {
+    temperatureSensor = new TemperatureSensor();
+    display = new Display();
     boiler = new Boiler();
     localNetwork = new LocalNetwork(*boiler);      
     globalNetwork = new GlobalNetwork(*localNetwork, *boiler);
@@ -26,6 +30,9 @@ KiLL::~KiLL() {
 
 void KiLL::setup() {
     pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
+    pinMode(UP_SETPOINT, INPUT_PULLUP);
+    pinMode(DOWN_SETPOINT, INPUT_PULLUP);
+
     Memory::initialize();
     
     localNetwork->initialize();
@@ -35,6 +42,8 @@ void KiLL::setup() {
     if (Memory::verifyContent()) {
         globalNetwork->startWiFiConnection();
     }
+    display->beginDisplay();
+    temperatureSensor->begin();
 }
 
 const String KiLL::espId() {
@@ -82,4 +91,26 @@ void KiLL::resetToFactorySettings() {
     Memory::clear();
     delay(3000);
     ESP.restart();
+}
+
+void KiLL::checkUserInteraction(){
+    if(digitalRead(DOWN_SETPOINT) == LOW){
+        int currentTargetTemperature = boiler->getTargetTemperature();
+        double currentTemperature = boiler->getCurrentTemperature();
+
+        boiler->setTargetTemperature(currentTargetTemperature - 1);
+        display->show(currentTargetTemperature, currentTemperature);
+        delay(200);
+    }
+
+    if(digitalRead(UP_SETPOINT) == LOW){
+        int currentTargetTemperature = boiler->getTargetTemperature();
+        double currentTemperature = boiler->getCurrentTemperature();
+
+        boiler->setTargetTemperature(currentTargetTemperature + 1);
+        display->show(currentTargetTemperature, currentTemperature);
+        delay(200);
+    }
+
+    checkForFactoryReset();
 }

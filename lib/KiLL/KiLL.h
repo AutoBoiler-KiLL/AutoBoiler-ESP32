@@ -6,6 +6,8 @@
 class LocalNetwork;
 class GlobalNetwork;
 class Boiler;
+class Display;
+class TemperatureSensor;
 
 class KiLL {
 public:
@@ -30,9 +32,14 @@ public:
     static constexpr uint8_t MINIMUM_TEMPERATURE = 23;
     static constexpr uint8_t MAXIMUM_TEMPERATURE = 50;
 
+    void checkUserInteraction();
+
 private:
     static constexpr uint8_t FACTORY_RESET_PIN = 10;
     static constexpr uint16_t FACTORY_RESET_HOLD_TIME = 10000;
+
+    static constexpr uint8_t UP_SETPOINT = 15;
+    static constexpr uint8_t DOWN_SETPOINT = 4;
 
     bool factoryButtonPressed;
     unsigned long factoryButtonPressedTime;
@@ -40,6 +47,8 @@ private:
     LocalNetwork* localNetwork;
     GlobalNetwork* globalNetwork;
     Boiler* boiler;
+    Display* display;
+    TemperatureSensor* temperatureSensor;
 };
 
 #endif

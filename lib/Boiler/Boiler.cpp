@@ -28,3 +28,11 @@ double Boiler::getCurrentTemperature() {
 bool Boiler::getIsOn() {
     return isOn;
 }
+
+int Boiler::getTargetTemperature(){
+    return Memory::getTemperature();
+}
+
+void Boiler::setCurrentTemperature(double temperature) {
+    currentTemperature;
+}
