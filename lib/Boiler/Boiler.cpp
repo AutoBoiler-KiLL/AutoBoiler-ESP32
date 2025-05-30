@@ -8,7 +8,7 @@ Boiler::Boiler() {
     isOn = true;
 }
 
-void Boiler::begin(){
+void Boiler::begin() {
     temperatureSensor->begin();
     currentTargetTemperature = Memory::getTemperature();
     currentTemperature = temperatureSensor->readTemperature(0);
@@ -37,12 +37,12 @@ bool Boiler::getIsOn() {
     return isOn;
 }
 
-int Boiler::getTargetTemperature(){
+int Boiler::getTargetTemperature() {
     return currentTargetTemperature;
 }
 
-double Boiler::controlTemperature(){
+double Boiler::controlTemperature() {
     currentTemperature = temperatureSensor->readTemperature(0);
-    //Aqui ira el control
+    // TODO: Control temperature using zero-cross detection
     return currentTemperature;
 }
