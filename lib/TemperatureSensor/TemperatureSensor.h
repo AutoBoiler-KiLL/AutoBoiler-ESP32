@@ -19,7 +19,7 @@ private:
     Adafruit_ADS1115* ads;
 
     static constexpr double VCC = 3.3;
-    static constexpr double R_FIXED = 3300.0;
+    static constexpr double R_FIXED = 3200.0;
 
     static constexpr double R0 = 100.0;
     static constexpr double alpha = 0.00385;
