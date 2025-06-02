@@ -6,7 +6,7 @@ TemperatureSensor::TemperatureSensor() {
 
 void TemperatureSensor::begin() {
     ads->begin();
-    ads->setGain(GAIN_FOUR); 
+    ads->setGain(GAIN_SIXTEEN); 
 }
 
 double TemperatureSensor::readTemperature(uint8_t channel) {

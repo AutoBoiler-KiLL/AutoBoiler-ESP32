@@ -95,17 +95,23 @@ void KiLL::resetToFactorySettings() {
 }
 
 void KiLL::checkUserInteraction() {
+    int currentTargetTemperature = boiler->getTargetTemperature();
+
     if (digitalRead(PIN_DECREASE_TARGET_TEMPERATURE) == LOW) {
-        int currentTargetTemperature = boiler->getTargetTemperature();
-        boiler->setTargetTemperature(currentTargetTemperature - 1);
-        display->updateTargetTemperature(currentTargetTemperature);
+        if (currentTargetTemperature > MINIMUM_TEMPERATURE) {
+            currentTargetTemperature--;
+            boiler->setTargetTemperature(currentTargetTemperature);
+            display->updateTargetTemperature(currentTargetTemperature);
+        }
         delay(200);
     }
 
     if (digitalRead(PIN_INCREASE_TARGET_TEMPERATURE) == LOW) {
-        int currentTargetTemperature = boiler->getTargetTemperature();
-        boiler->setTargetTemperature(currentTargetTemperature + 1);
-        display->updateTargetTemperature(currentTargetTemperature);
+        if (currentTargetTemperature < MAXIMUM_TEMPERATURE) {
+            currentTargetTemperature++;
+            boiler->setTargetTemperature(currentTargetTemperature);
+            display->updateTargetTemperature(currentTargetTemperature);
+        }
         delay(200);
     }
 
