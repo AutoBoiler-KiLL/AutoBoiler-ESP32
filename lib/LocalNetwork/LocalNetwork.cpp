@@ -206,7 +206,6 @@ void LocalNetwork::handleCommand() {
     }
 
     String command = document["command"] | "";
-    String value = document["value"] | "";
 
     if (command == "turn_on") {
         boiler.turnOn();
@@ -214,7 +213,9 @@ void LocalNetwork::handleCommand() {
         boiler.turnOff();
     } else if (command == "set_temperature") {
         Serial.println("[LocalNetwork] Setting temperature to " + document["value"].as<String>());
+        
         int temperature = document["value"].as<String>().toInt();
+        
         if (temperature < KiLL::MINIMUM_TEMPERATURE || temperature > KiLL::MAXIMUM_TEMPERATURE) {
             Serial.println("Error temperature " + String(temperature));
             server.send(400, "application/json", "{\"error\": \"Temperature " + String(temperature) + " out of range\"}");

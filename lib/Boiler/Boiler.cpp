@@ -6,7 +6,6 @@
 Boiler* Boiler::instance = nullptr;
 
 Boiler::Boiler() {
-
     temperatureSensor = new TemperatureSensor();
     currentTemperature = 0;
     isOn = true;
@@ -45,7 +44,7 @@ void Boiler::begin() {
 
 
 void Boiler::setTargetTemperature(int temperature) {
-    setPowerPercent(map(temperature, 23,50, 0, 100));
+    setPowerPercent(map(temperature, 23, 50, 0, 100));
     currentTargetTemperature = temperature;
 }
 

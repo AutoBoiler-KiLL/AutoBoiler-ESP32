@@ -26,9 +26,11 @@ public:
 private:
     static constexpr uint8_t ZERO_CROSS_DETECTION_PIN = 17;
     static constexpr uint8_t SSR_ACTIVAION_PIN = 16;
+    
     int currentTargetTemperature;
     double currentTemperature;
     bool isOn;
+    
     TemperatureSensor* temperatureSensor;
 
     static Boiler* instance; 
@@ -38,7 +40,6 @@ private:
     volatile uint8_t zeroCrossCounter = 0;      
     volatile uint8_t desiredActiveCycles = 8;  
     static const uint8_t totalCycles = 10;
-
 };
 
 #endif

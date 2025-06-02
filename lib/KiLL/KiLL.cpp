@@ -119,7 +119,5 @@ void KiLL::checkUserInteraction() {
 }
 
 void KiLL::controlTemperature(){
-
     display->updateCurrentTemperature(boiler->controlTemperature());
-
 }
