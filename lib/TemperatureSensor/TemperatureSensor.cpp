@@ -2,6 +2,9 @@
 
 TemperatureSensor::TemperatureSensor() {
     ads = new Adafruit_ADS1115();
+    windowIndex = 0;
+    windowFilled = false;    
+    memset(temperatureWindow, 0, sizeof(temperatureWindow));
 }
 
 void TemperatureSensor::begin() {
@@ -11,8 +14,23 @@ void TemperatureSensor::begin() {
 
 double TemperatureSensor::readTemperature(uint8_t channel) {
     int16_t rawADC = ads->readADC_SingleEnded(channel);
+    
     double vOut = (rawADC * 0.256) / 32767.0;
     double R_PT100 = (-vOut * R_FIXED) / (vOut - VCC);
-    double temperature = (R_PT100 - R0) / (alpha * R0);
-    return temperature;
+    double rawTemperature = (R_PT100 - R0) / (alpha * R0);
+    
+    return getFilteredTemperature(rawTemperature);
+}
+
+double TemperatureSensor::getFilteredTemperature(double newReading) {
+    temperatureWindow[windowIndex] = newReading;
+    windowIndex = (windowIndex + 1) % TEMPERATURE_WINDOW_SIZE;
+    
+    if (windowIndex == 0) windowFilled = true;
+    
+    double sum = 0.0;
+    uint8_t count = windowFilled ? TEMPERATURE_WINDOW_SIZE : windowIndex;
+    
+    for (uint8_t i = 0; i < count; i++) sum += temperatureWindow[i];
+    return sum / count;
 }
