@@ -8,7 +8,7 @@ Boiler* Boiler::instance = nullptr;
 Boiler::Boiler() {
     temperatureSensor = new TemperatureSensor();
     currentTemperature = 0;
-    isOn = true;
+    isOn = false;
     lastMinTempUpdate = 0;
     shouldUpdateMinTemp = true;
     minimumTemperature = 0;

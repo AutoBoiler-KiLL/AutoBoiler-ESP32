@@ -95,6 +95,12 @@ void KiLL::resetToFactorySettings() {
 }
 
 void KiLL::checkUserInteraction() {
+    checkForFactoryReset();
+    
+    bool isBoilerOn = boiler->getIsOn();
+    display->updateBoilerStatus(isBoilerOn);
+    if (!isBoilerOn) return;
+
     int currentTargetTemperature = boiler->getTargetTemperature();
 
     if (digitalRead(PIN_DECREASE_TARGET_TEMPERATURE) == LOW) {
@@ -115,7 +121,6 @@ void KiLL::checkUserInteraction() {
         delay(200);
     }
 
-    checkForFactoryReset();
 }
 
 void KiLL::controlTemperature(){
