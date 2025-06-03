@@ -11,7 +11,8 @@
 KiLL::KiLL() {
     display = new Display();
     boiler = new Boiler();
-    localNetwork = new LocalNetwork(*boiler);      
+    display = new Display();
+    localNetwork = new LocalNetwork(*boiler, *display);      
     globalNetwork = new GlobalNetwork(*localNetwork, *boiler);
     factoryButtonPressed = false;
     factoryButtonPressedTime = 0;
@@ -56,9 +57,9 @@ const String KiLL::espId() {
 
 void KiLL::keepServersAlive() {
     localNetwork->keepServerAlive();
-    if (globalNetwork->isConnectedToWifi()) {
-        globalNetwork->keepConnectionWithServer();
-    }
+    // if (globalNetwork->isConnectedToWifi()) {
+    //     globalNetwork->keepConnectionWithServer();
+    // }
 }
 
 void KiLL::tryToReconnectToWifi() {

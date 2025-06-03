@@ -2,8 +2,9 @@
 
 #include "Memory.h"
 #include "KiLL.h"
+#include "Display.h"
 
-LocalNetwork::LocalNetwork(Boiler& boiler) : server(HTTP_PORT), boiler(boiler) {}
+LocalNetwork::LocalNetwork(Boiler& boiler, Display& display) : server(HTTP_PORT), boiler(boiler), display(display) {}
 
 const String LocalNetwork::getHostname() {
     return "http://KiLL-" + KiLL::espId() + ".local/";
@@ -223,6 +224,7 @@ void LocalNetwork::handleCommand() {
         }
 
         boiler.setTargetTemperature(temperature);
+        display.updateTargetTemperature(temperature);
     }
 
     server.send(200, "application/json", "{\"status\": \"OK\"}");
@@ -236,8 +238,11 @@ void LocalNetwork::handleStatus() {
         return;
     }
 
-    server.send(200, "application/json", "{\"targetTemperature\": " + String(Memory::getTemperature()) + 
-    ", \"currentTemperature\": " + String(random(25000, 50000) / 1000.0) + 
+    server.send(200, "application/json", 
+    "{\"targetTemperature\": " + String(Memory::getTemperature()) + 
+    ", \"currentTemperature\": " + String(boiler.getCurrentTemperature()) + 
     ", \"isOn\": " + String(boiler.getIsOn()) + 
-    ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\"}");
+    ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\", " +
+    "\"minimumTemperature\": " + String(boiler.getMinimumTemperature()) + 
+    "}");
 }

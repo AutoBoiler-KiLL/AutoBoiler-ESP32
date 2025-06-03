@@ -10,10 +10,11 @@ class KiLL;
 
 #include "Utils.h"
 #include "Boiler.h"
+#include "Display.h"
 
 class LocalNetwork {
 public:
-    LocalNetwork(Boiler& boiler);
+    LocalNetwork(Boiler& boiler, Display& display);
 
     void initialize();
     void stopAccessPoint();
@@ -44,7 +45,7 @@ private:
     static void onStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info);
 
     Boiler& boiler;
-
+    Display& display;
     /// MARK: Routes
 
     bool checkRequestData(JsonDocument& document, const String source);
