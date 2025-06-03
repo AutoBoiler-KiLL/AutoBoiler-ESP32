@@ -28,7 +28,6 @@ public:
     void keepServersAlive();
     void tryToReconnectToWifi();
 
-    static constexpr uint8_t MINIMUM_TEMPERATURE = 23;
     static constexpr uint8_t MAXIMUM_TEMPERATURE = 50;
 
     void checkUserInteraction();

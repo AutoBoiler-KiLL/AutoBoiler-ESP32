@@ -104,7 +104,7 @@ void KiLL::checkUserInteraction() {
     int currentTargetTemperature = boiler->getTargetTemperature();
 
     if (digitalRead(PIN_DECREASE_TARGET_TEMPERATURE) == LOW) {
-        if (currentTargetTemperature > MINIMUM_TEMPERATURE) {
+        if (currentTargetTemperature > boiler->getMinimumTemperature()) {
             currentTargetTemperature--;
             boiler->setTargetTemperature(currentTargetTemperature);
             display->updateTargetTemperature(currentTargetTemperature);
