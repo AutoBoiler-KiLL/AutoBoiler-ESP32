@@ -11,7 +11,7 @@
 KiLL::KiLL() {
     display = new Display();
     boiler = new Boiler();
-    display = new Display();
+    
     localNetwork = new LocalNetwork(*boiler, *display);      
     globalNetwork = new GlobalNetwork(*localNetwork, *boiler);
     factoryButtonPressed = false;
