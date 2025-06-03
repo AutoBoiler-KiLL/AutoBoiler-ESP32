@@ -40,6 +40,8 @@ private:
 
     static constexpr uint8_t PIN_INCREASE_TARGET_TEMPERATURE = 15;
     static constexpr uint8_t PIN_DECREASE_TARGET_TEMPERATURE = 4;
+    // TODO: Change to 25 when testing is done
+    static constexpr uint8_t PIN_TOGGLE_BOILER = 5;
 
     bool factoryButtonPressed;
     unsigned long factoryButtonPressedTime;

@@ -25,6 +25,8 @@ public:
     static void IRAM_ATTR zeroCrossISR(); 
     void setPowerPercent(uint8_t percent);
 
+    void toggle();
+
 private:
     static constexpr uint8_t ZERO_CROSS_DETECTION_PIN = 17;
     static constexpr uint8_t SSR_ACTIVAION_PIN = 16;

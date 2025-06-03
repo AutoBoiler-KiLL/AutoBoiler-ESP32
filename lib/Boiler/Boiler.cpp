@@ -68,6 +68,14 @@ void Boiler::turnOff() {
     shouldUpdateMinTemp = true;
 }
 
+void Boiler::toggle() {
+    if (isOn) {
+        turnOff();
+    } else {
+        turnOn();
+    }
+}
+
 double Boiler::getCurrentTemperature() {
     return currentTemperature;
 }
