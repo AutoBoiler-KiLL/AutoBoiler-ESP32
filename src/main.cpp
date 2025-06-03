@@ -13,7 +13,7 @@ void setup() {
 void loop() {
   smartBoiler.keepServersAlive();
   smartBoiler.tryToReconnectToWifi();
-
+  
   smartBoiler.checkUserInteraction();
   smartBoiler.controlTemperature();
 }
