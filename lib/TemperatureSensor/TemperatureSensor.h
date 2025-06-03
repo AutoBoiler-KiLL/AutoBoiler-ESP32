@@ -23,6 +23,13 @@ private:
 
     static constexpr double R0 = 100.0;
     static constexpr double alpha = 0.00385;
+    
+    static constexpr uint8_t TEMPERATURE_WINDOW_SIZE = 50;
+    double temperatureWindow[TEMPERATURE_WINDOW_SIZE];
+    uint8_t windowIndex;
+    bool windowFilled;
+    
+    double getFilteredTemperature(double newReading);
 };
 
 #endif

@@ -19,6 +19,8 @@ public:
     bool getIsOn();
     
     double getCurrentTemperature();
+    
+    int getMinimumTemperature();
 
     static void IRAM_ATTR zeroCrossISR(); 
     void setPowerPercent(uint8_t percent);
@@ -26,9 +28,16 @@ public:
 private:
     static constexpr uint8_t ZERO_CROSS_DETECTION_PIN = 17;
     static constexpr uint8_t SSR_ACTIVAION_PIN = 16;
+    static constexpr unsigned long MIN_TEMP_UPDATE_INTERVAL = 60 * 1000;
+    
     int currentTargetTemperature;
     double currentTemperature;
     bool isOn;
+    int minimumTemperature;
+    
+    unsigned long lastMinTempUpdate;
+    bool shouldUpdateMinTemp;
+    
     TemperatureSensor* temperatureSensor;
 
     static Boiler* instance; 
@@ -39,6 +48,8 @@ private:
     volatile uint8_t desiredActiveCycles = 8;  
     static const uint8_t totalCycles = 10;
 
+    /// @brief Updates the minimum temperature if starting up or every minute while off
+    void updateMinimumTemperature();
 };
 
 #endif

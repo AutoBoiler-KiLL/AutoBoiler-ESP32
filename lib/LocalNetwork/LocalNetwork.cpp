@@ -2,8 +2,9 @@
 
 #include "Memory.h"
 #include "KiLL.h"
+#include "Display.h"
 
-LocalNetwork::LocalNetwork(Boiler& boiler) : server(HTTP_PORT), boiler(boiler) {}
+LocalNetwork::LocalNetwork(Boiler& boiler, Display& display) : server(HTTP_PORT), boiler(boiler), display(display) {}
 
 const String LocalNetwork::getHostname() {
     return "http://KiLL-" + KiLL::espId() + ".local/";
@@ -206,7 +207,6 @@ void LocalNetwork::handleCommand() {
     }
 
     String command = document["command"] | "";
-    String value = document["value"] | "";
 
     if (command == "turn_on") {
         boiler.turnOn();
@@ -214,14 +214,17 @@ void LocalNetwork::handleCommand() {
         boiler.turnOff();
     } else if (command == "set_temperature") {
         Serial.println("[LocalNetwork] Setting temperature to " + document["value"].as<String>());
+        
         int temperature = document["value"].as<String>().toInt();
-        if (temperature < KiLL::MINIMUM_TEMPERATURE || temperature > KiLL::MAXIMUM_TEMPERATURE) {
+        
+        if (temperature < boiler.getMinimumTemperature() || temperature > KiLL::MAXIMUM_TEMPERATURE) {
             Serial.println("Error temperature " + String(temperature));
             server.send(400, "application/json", "{\"error\": \"Temperature " + String(temperature) + " out of range\"}");
             return;
         }
 
         boiler.setTargetTemperature(temperature);
+        display.updateTargetTemperature(temperature);
     }
 
     server.send(200, "application/json", "{\"status\": \"OK\"}");
@@ -235,8 +238,11 @@ void LocalNetwork::handleStatus() {
         return;
     }
 
-    server.send(200, "application/json", "{\"targetTemperature\": " + String(Memory::getTemperature()) + 
-    ", \"currentTemperature\": " + String(random(25000, 50000) / 1000.0) + 
+    server.send(200, "application/json", 
+    "{\"targetTemperature\": " + String(Memory::getTemperature()) + 
+    ", \"currentTemperature\": " + String(boiler.getCurrentTemperature()) + 
     ", \"isOn\": " + String(boiler.getIsOn()) + 
-    ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\"}");
+    ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\", " +
+    "\"minimumTemperature\": " + String(boiler.getMinimumTemperature()) + 
+    "}");
 }

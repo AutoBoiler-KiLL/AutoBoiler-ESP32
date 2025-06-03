@@ -11,7 +11,8 @@
 KiLL::KiLL() {
     display = new Display();
     boiler = new Boiler();
-    localNetwork = new LocalNetwork(*boiler);      
+    
+    localNetwork = new LocalNetwork(*boiler, *display);      
     globalNetwork = new GlobalNetwork(*localNetwork, *boiler);
     factoryButtonPressed = false;
     factoryButtonPressedTime = 0;
@@ -56,9 +57,9 @@ const String KiLL::espId() {
 
 void KiLL::keepServersAlive() {
     localNetwork->keepServerAlive();
-    if (globalNetwork->isConnectedToWifi()) {
-        globalNetwork->keepConnectionWithServer();
-    }
+    // if (globalNetwork->isConnectedToWifi()) {
+    //     globalNetwork->keepConnectionWithServer();
+    // }
 }
 
 void KiLL::tryToReconnectToWifi() {
@@ -95,10 +96,16 @@ void KiLL::resetToFactorySettings() {
 }
 
 void KiLL::checkUserInteraction() {
+    checkForFactoryReset();
+    
+    bool isBoilerOn = boiler->getIsOn();
+    display->updateBoilerStatus(isBoilerOn);
+    if (!isBoilerOn) return;
+
     int currentTargetTemperature = boiler->getTargetTemperature();
 
     if (digitalRead(PIN_DECREASE_TARGET_TEMPERATURE) == LOW) {
-        if (currentTargetTemperature > MINIMUM_TEMPERATURE) {
+        if (currentTargetTemperature > boiler->getMinimumTemperature()) {
             currentTargetTemperature--;
             boiler->setTargetTemperature(currentTargetTemperature);
             display->updateTargetTemperature(currentTargetTemperature);
@@ -115,11 +122,8 @@ void KiLL::checkUserInteraction() {
         delay(200);
     }
 
-    checkForFactoryReset();
 }
 
 void KiLL::controlTemperature(){
-
     display->updateCurrentTemperature(boiler->controlTemperature());
-
 }
