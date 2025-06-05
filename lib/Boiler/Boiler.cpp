@@ -60,6 +60,7 @@ void Boiler::setTargetTemperature(int temperature) {
 }
 
 void Boiler::turnOn() {
+    targetTemperature = constrain(targetTemperature, minimumTemperature, KiLL::MAXIMUM_TEMPERATURE);
     Serial.println("[Boiler] Turning on");
     isOn = true;
     shouldUpdateMinTemp = false;
