@@ -1,6 +1,8 @@
 #ifndef BOILER_H
 #define BOILER_H
 
+#include "PID.h"
+
 class TemperatureSensor;
 
 class Boiler {
@@ -28,11 +30,12 @@ public:
     void toggle();
 
 private:
-    static constexpr uint8_t ZERO_CROSS_DETECTION_PIN = 17;
-    static constexpr uint8_t SSR_ACTIVAION_PIN = 16;
+    static constexpr uint8_t BOILER_LED_PIN = 25;
+    static constexpr uint8_t ZERO_CROSS_DETECTION_PIN = 16;
+    static constexpr uint8_t SSR_ACTIVAION_PIN = 23;
     static constexpr unsigned long MIN_TEMP_UPDATE_INTERVAL = 60 * 1000;
     
-    int currentTargetTemperature;
+    int targetTemperature;
     double currentTemperature;
     bool isOn;
     int minimumTemperature;
@@ -41,6 +44,7 @@ private:
     bool shouldUpdateMinTemp;
     
     TemperatureSensor* temperatureSensor;
+    PID* pid;
 
     static Boiler* instance; 
     volatile bool zeroCrossDetectedFlag = false;
