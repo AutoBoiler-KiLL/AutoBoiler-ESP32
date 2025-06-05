@@ -28,18 +28,19 @@ public:
     void keepServersAlive();
     void tryToReconnectToWifi();
 
-    static constexpr uint8_t MAXIMUM_TEMPERATURE = 50;
+    static constexpr uint8_t MAXIMUM_TEMPERATURE = 65;
 
     void checkUserInteraction();
 
     void controlTemperature();
 
 private:
-    static constexpr uint8_t FACTORY_RESET_PIN = 10;
+    static constexpr uint8_t FACTORY_RESET_PIN = 17;
     static constexpr uint16_t FACTORY_RESET_HOLD_TIME = 10000;
 
-    static constexpr uint8_t PIN_INCREASE_TARGET_TEMPERATURE = 15;
-    static constexpr uint8_t PIN_DECREASE_TARGET_TEMPERATURE = 4;
+    static constexpr uint8_t PIN_INCREASE_TARGET_TEMPERATURE = 18;
+    static constexpr uint8_t PIN_DECREASE_TARGET_TEMPERATURE = 19;
+    static constexpr uint8_t PIN_TOGGLE_BOILER = 17;
 
     bool factoryButtonPressed;
     unsigned long factoryButtonPressedTime;

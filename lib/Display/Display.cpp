@@ -39,7 +39,7 @@ void Display::updateBoilerStatus(bool isBoilerOn) {
 void Display::show() {
     display->clearDisplay();
 
-    display->setTextSize(4);
+    display->setTextSize(2);
     display->setTextColor(SSD1306_WHITE);
     display->setCursor(0, 0);
     
@@ -53,7 +53,7 @@ void Display::show() {
         display->print("OFF");
     }
 
-    display->setTextSize(2);
+    display->setTextSize(1);
     display->setCursor(5, 40);
     display->print(currentTemperature, 2);
     int x = display->getCursorX();

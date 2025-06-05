@@ -33,6 +33,7 @@ void KiLL::setup() {
     pinMode(FACTORY_RESET_PIN, INPUT_PULLUP);
     pinMode(PIN_INCREASE_TARGET_TEMPERATURE, INPUT_PULLUP);
     pinMode(PIN_DECREASE_TARGET_TEMPERATURE, INPUT_PULLUP);
+    pinMode(PIN_TOGGLE_BOILER, INPUT_PULLUP);
 
     Memory::initialize();
     
@@ -97,6 +98,12 @@ void KiLL::resetToFactorySettings() {
 
 void KiLL::checkUserInteraction() {
     checkForFactoryReset();
+
+    if (digitalRead(PIN_TOGGLE_BOILER) == LOW) {
+        boiler->toggle();
+        display->updateBoilerStatus(boiler->getIsOn());
+        delay(200);
+    }
     
     bool isBoilerOn = boiler->getIsOn();
     display->updateBoilerStatus(isBoilerOn);
@@ -121,7 +128,6 @@ void KiLL::checkUserInteraction() {
         }
         delay(200);
     }
-
 }
 
 void KiLL::controlTemperature(){

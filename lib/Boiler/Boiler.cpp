@@ -2,6 +2,7 @@
 #include "Boiler.h"
 #include "Memory.h"
 #include "TemperatureSensor.h"
+#include "KiLL.h"
 
 Boiler* Boiler::instance = nullptr;
 
@@ -12,6 +13,7 @@ Boiler::Boiler() {
     lastMinTempUpdate = 0;
     shouldUpdateMinTemp = true;
     minimumTemperature = 0;
+    pid = nullptr;
 }
 
 void IRAM_ATTR Boiler::zeroCrossISR() {
@@ -38,8 +40,9 @@ void Boiler::setPowerPercent(uint8_t percent) {
 
 void Boiler::begin() {
     pinMode(SSR_ACTIVAION_PIN, OUTPUT);
+    pinMode(BOILER_LED_PIN, OUTPUT);
     temperatureSensor->begin();
-    currentTargetTemperature = Memory::getTemperature();
+    targetTemperature = Memory::getTemperature();
     currentTemperature = temperatureSensor->readTemperature(0);
     
     lastMinTempUpdate = millis();
@@ -47,25 +50,38 @@ void Boiler::begin() {
     
     instance = this;
     attachInterrupt(digitalPinToInterrupt(ZERO_CROSS_DETECTION_PIN), Boiler::zeroCrossISR, RISING);
+
+    pid = new PID();
 }
 
 
 void Boiler::setTargetTemperature(int temperature) {
-    setPowerPercent(map(temperature, 23, 50, 0, 100));
-    currentTargetTemperature = temperature;
+    targetTemperature = temperature;
 }
 
 void Boiler::turnOn() {
+    targetTemperature = constrain(targetTemperature, minimumTemperature, KiLL::MAXIMUM_TEMPERATURE);
     Serial.println("[Boiler] Turning on");
     isOn = true;
     shouldUpdateMinTemp = false;
+    digitalWrite(BOILER_LED_PIN, HIGH);
 }
 
 void Boiler::turnOff() {
-    Memory::writeTemperature(currentTargetTemperature);
+    Memory::writeTemperature(targetTemperature);
     Serial.println("[Boiler] Turning off");
     isOn = false;
     shouldUpdateMinTemp = true;
+    setPowerPercent(0);
+    digitalWrite(BOILER_LED_PIN, LOW);
+}
+
+void Boiler::toggle() {
+    if (isOn) {
+        turnOff();
+    } else {
+        turnOn();
+    }
 }
 
 double Boiler::getCurrentTemperature() {
@@ -77,7 +93,7 @@ bool Boiler::getIsOn() {
 }
 
 int Boiler::getTargetTemperature() {
-    return currentTargetTemperature;
+    return targetTemperature;
 }
 
 int Boiler::getMinimumTemperature() {
@@ -110,8 +126,12 @@ void Boiler::updateMinimumTemperature() {
 double Boiler::controlTemperature() {
     currentTemperature = temperatureSensor->readTemperature(0);
     updateMinimumTemperature();
+
+    if (!isOn) return currentTemperature;
     
-    // TODO: Control temperature using zero-cross detection
+    int power = pid->control(targetTemperature, currentTemperature, minimumTemperature, KiLL::MAXIMUM_TEMPERATURE);
+    setPowerPercent(power);
+    Serial.println("[Boiler] Power: " + String(power) + "%");
 
     return currentTemperature;
 }

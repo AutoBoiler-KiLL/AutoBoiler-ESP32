@@ -1,7 +1,5 @@
 #include <Arduino.h>
 #include <KiLL.h>
-#include <Display.h>
-#include <TemperatureSensor.h>
 
 KiLL smartBoiler;
 

@@ -12,14 +12,19 @@ void TemperatureSensor::begin() {
     ads->setGain(GAIN_SIXTEEN); 
 }
 
+double TemperatureSensor::getVCC() {
+    int16_t rawADC = ads->readADC_SingleEnded(2);
+    return (rawADC * 0.256) / 32767.0;
+}
+
 double TemperatureSensor::readTemperature(uint8_t channel) {
     int16_t rawADC = ads->readADC_SingleEnded(channel);
     
     double vOut = (rawADC * 0.256) / 32767.0;
-    double R_PT100 = (-vOut * R_FIXED) / (vOut - VCC);
+    double R_PT100 = (-vOut * R_FIXED) / (vOut - 3.3);
     double rawTemperature = (R_PT100 - R0) / (alpha * R0);
     
-    return getFilteredTemperature(rawTemperature);
+    return getFilteredTemperature(abs(rawTemperature));
 }
 
 double TemperatureSensor::getFilteredTemperature(double newReading) {
