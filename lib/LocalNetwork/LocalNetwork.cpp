@@ -239,7 +239,7 @@ void LocalNetwork::handleStatus() {
     }
 
     server.send(200, "application/json", 
-    "{\"targetTemperature\": " + String(Memory::getTemperature()) + 
+    "{\"targetTemperature\": " + String(boiler.getTargetTemperature()) + 
     ", \"currentTemperature\": " + String(boiler.getCurrentTemperature()) + 
     ", \"isOn\": " + String(boiler.getIsOn()) + 
     ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\", " +

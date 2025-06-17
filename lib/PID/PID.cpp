@@ -43,7 +43,7 @@ int PID::control(double targetTemperature, double currentTemperature, double min
 
     pid = P + I + D;
 
-    power = constrain(map(pid, minTemperature, maxTemperature, 0, 25), 0, 25);
+    power = constrain(map(pid, minTemperature, maxTemperature, 0, 100), 0, 100);
 
     return power;
 }
