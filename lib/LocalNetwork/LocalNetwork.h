@@ -23,8 +23,6 @@ public:
     void startServer();
     void stopServer();
 
-    void keepServerAlive();
-
     void setupLocalNetwork();
 
     const String getHostname();
@@ -68,6 +66,11 @@ private:
     static const String OK_RESPONSE;
     static const String ERROR_RESPONSE(const String message);
     static const String MISSING_AUTHENTICATION_RESPONSE;
+
+    /// @brief Task handle for WebSocket server
+    TaskHandle_t webSocketTaskHandle = NULL;
+    /// @brief Static task function for WebSocket server
+    static void webSocketTask(void* parameter);
 };
 
 #endif

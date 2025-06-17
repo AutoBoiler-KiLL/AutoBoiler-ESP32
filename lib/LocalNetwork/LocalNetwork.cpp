@@ -76,11 +76,35 @@ void LocalNetwork::setupServer() {
 void LocalNetwork::startServer() {
     webSocketServer.begin();
     Serial.println("[LocalNetwork] WebSocket server started at " + getHostname());
+    
+    // Create task on Core 1
+    xTaskCreatePinnedToCore(
+        webSocketTask,          // Task function
+        "WebSocketTask",        // Task name
+        4096,                   // Stack size
+        this,                   // Parameter passed to task
+        1,                      // Priority
+        &webSocketTaskHandle,   // Task handle
+        1                       // Core ID (changed from 0 to 1)
+    );
 }
 
 void LocalNetwork::stopServer() {
+    if (webSocketTaskHandle != NULL) {
+        vTaskDelete(webSocketTaskHandle);
+        webSocketTaskHandle = NULL;
+    }
     webSocketServer.close();
     Serial.println("[LocalNetwork] WebSocket server stopped");
+}
+
+void LocalNetwork::webSocketTask(void* parameter) {
+    LocalNetwork* localNetwork = static_cast<LocalNetwork*>(parameter);
+    
+    while (true) {
+        localNetwork->webSocketServer.loop();
+        vTaskDelay(1 / portTICK_PERIOD_MS); // Small delay to prevent watchdog issues
+    }
 }
 
 void LocalNetwork::setupLocalNetwork() {
@@ -100,10 +124,6 @@ void LocalNetwork::setupLocalNetwork() {
     } else {
         Serial.println("\n[LocalNetwork] mDNS responder started");
     }
-}
-
-void LocalNetwork::keepServerAlive() {
-    webSocketServer.loop();
 }
 
 // MARK: WebSocket Event Handling
