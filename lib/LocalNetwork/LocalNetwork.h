@@ -62,6 +62,12 @@ private:
     void handleResetFactoryMessage(uint8_t num, JsonDocument& document);
     void handleCommandMessage(uint8_t num, JsonDocument& document);
     void handleStatusMessage(uint8_t num, JsonDocument& document);
+
+    /// MARK: Responses
+    static const String STATUS_RESPONSE(const String message);
+    static const String OK_RESPONSE;
+    static const String ERROR_RESPONSE(const String message);
+    static const String MISSING_AUTHENTICATION_RESPONSE;
 };
 
 #endif

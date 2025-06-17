@@ -110,7 +110,6 @@ void Boiler::updateMinimumTemperature() {
     // Check if this is the first time
     if (minimumTemperature == 0) {
         shouldUpdate = true;
-        Serial.println("[Boiler] Initial minimum temperature update on startup");
     } else if (lastMinTempUpdate > 0 && (currentTime - lastMinTempUpdate >= MIN_TEMP_UPDATE_INTERVAL)) {
         // Periodic update every MIN_TEMP_UPDATE_INTERVAL
         shouldUpdate = true;
