@@ -41,6 +41,8 @@ void KiLL::setup() {
     localNetwork->setupLocalNetwork();
     localNetwork->setupServer();
 
+    // resetToFactorySettings();
+
     if (Memory::verifyContent()) {
         globalNetwork->startWiFiConnection();
     }

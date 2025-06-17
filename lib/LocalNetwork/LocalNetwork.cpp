@@ -4,10 +4,10 @@
 #include "KiLL.h"
 #include "Display.h"
 
-LocalNetwork::LocalNetwork(Boiler& boiler, Display& display) : server(HTTP_PORT), boiler(boiler), display(display) {}
+LocalNetwork::LocalNetwork(Boiler& boiler, Display& display) : webSocketServer(WEBSOCKET_PORT), boiler(boiler), display(display) {}
 
 const String LocalNetwork::getHostname() {
-    return "http://KiLL-" + KiLL::espId() + ".local/";
+    return "ws://KiLL-" + KiLL::espId() + ".local:" + String(WEBSOCKET_PORT) + "/";
 }
 
 const String LocalNetwork::SSID() {
@@ -57,25 +57,18 @@ void LocalNetwork::stopAccessPoint() {
 }
 
 void LocalNetwork::setupServer() {
-    server.on("/", HTTP_GET, std::bind(&LocalNetwork::handleRoot, this));
-    server.on("/local", HTTP_GET, std::bind(&LocalNetwork::handleLocal, this));
-    server.onNotFound(std::bind(&LocalNetwork::handleNotFound, this));
-    server.on("/setup", HTTP_POST, std::bind(&LocalNetwork::handleSetup, this));
-    server.on("/kill_reset_factory", HTTP_POST, std::bind(&LocalNetwork::handleResetFactory, this));
-    server.on("/command", HTTP_POST, std::bind(&LocalNetwork::handleCommand, this));
-    server.on("/status", HTTP_POST, std::bind(&LocalNetwork::handleStatus, this));
-
+    webSocketServer.onEvent(std::bind(&LocalNetwork::webSocketEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
     startServer();
 }
 
 void LocalNetwork::startServer() {
-    server.begin();
-    Serial.println("[LocalNetwork] Local server started at " + getHostname());
+    webSocketServer.begin();
+    Serial.println("[LocalNetwork] WebSocket server started at " + getHostname());
 }
 
 void LocalNetwork::stopServer() {
-    server.stop();
-    Serial.println("[LocalNetwork] Local server stopped");
+    webSocketServer.close();
+    Serial.println("[LocalNetwork] WebSocket server stopped");
 }
 
 void LocalNetwork::setupLocalNetwork() {
@@ -98,51 +91,96 @@ void LocalNetwork::setupLocalNetwork() {
 }
 
 void LocalNetwork::keepServerAlive() {
-    server.handleClient();
+    webSocketServer.loop();
 }
 
-// MARK: Routes
+// MARK: WebSocket Event Handling
 
-bool LocalNetwork::checkRequestData(JsonDocument& document, const String source) {
-    if (!server.hasArg("plain")) {
+void LocalNetwork::webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
+    switch (type) {
+        case WStype_DISCONNECTED:
+            Serial.printf("[LocalNetwork] Client %u disconnected\n", num);
+            break;
+            
+        case WStype_CONNECTED: {
+            IPAddress ip = webSocketServer.remoteIP(num);
+            Serial.printf("[LocalNetwork] Client %u connected from %d.%d.%d.%d\n", num, ip[0], ip[1], ip[2], ip[3]);
+            break;
+        }
+        
+        case WStype_TEXT:
+            handleWebSocketMessage(num, String((char*)payload));
+            break;
+            
+        default:
+            break;
+    }
+}
+
+void LocalNetwork::handleWebSocketMessage(uint8_t num, const String& message) {
+    JsonDocument document;
+    DeserializationError error = deserializeJson(document, message);
+    
+    if (error) {
+        Serial.println("[LocalNetwork] Error parsing message: " + String(error.c_str()));
+        sendWebSocketResponse(num, "{\"error\": \"Invalid JSON\"}");
+        return;
+    }
+    
+    String action = document["action"] | "";
+    
+    if (action == "ping") {
+        handleRootMessage(num);
+    } else if (action == "local") {
+        handleLocalMessage(num);
+    } else if (action == "setup") {
+        handleSetupMessage(num, document);
+    } else if (action == "kill_reset_factory") {
+        handleResetFactoryMessage(num, document);
+    } else if (action == "command") {
+        handleCommandMessage(num, document);
+    } else if (action == "status") {
+        handleStatusMessage(num, document);
+    } else {
+        sendWebSocketResponse(num, "{\"error\": \"Unknown action\"}");
+    }
+}
+
+void LocalNetwork::sendWebSocketResponse(uint8_t num, const String& response) {
+    webSocketServer.sendTXT(num, response.c_str());
+}
+
+// MARK: Message Handlers
+
+bool LocalNetwork::checkRequestData(JsonDocument& document, const String& message, const String source) {
+    if (message.length() == 0) {
         Serial.println("[LocalNetwork] Error: No data on " + source);
-        server.send(400, "application/json", "{\"error\": \"No Data\"}");
         return false;
     }
 
-    String json = server.arg("plain");
-    DeserializationError error = deserializeJson(document, json);
-
+    DeserializationError error = deserializeJson(document, message);
     if (error) {
-        Serial.println("[LocalNetwork] Error: Failed to parse setup data");
-        server.send(400, "application/json", "{\"error\": \"Invalid Data\"}");
+        Serial.println("[LocalNetwork] Error: Failed to parse " + source + " data");
         return false;
     }
 
     return true;
 }
 
-void LocalNetwork::handleRoot() {
-    server.send(200, "text/plain", "KiLL");
+void LocalNetwork::handleRootMessage(uint8_t num) {
+    sendWebSocketResponse(num, "{\"response\": \"KiLL\"}");
 }
 
-void LocalNetwork::handleLocal() {
-    server.send(200, "text/plain", KiLL::espId());
+void LocalNetwork::handleLocalMessage(uint8_t num) {
+    sendWebSocketResponse(num, "{\"response\": \"" + KiLL::espId() + "\"}");
 }
 
-void LocalNetwork::handleNotFound() {
-    server.send(404, "text/plain", "Not found");
-}
-
-void LocalNetwork::handleSetup() {
+void LocalNetwork::handleSetupMessage(uint8_t num, JsonDocument& document) {
     if (Memory::verifyContent()) {
         Serial.println("[LocalNetwork] Error: Tried to setup KiLL twice.");
-        server.send(400, "application/json", "{\"error\": \"KiLL already setup.\"}");
+        sendWebSocketResponse(num, "{\"error\": \"KiLL already setup.\"}");
         return;
     }
-
-    JsonDocument document;
-    if (!checkRequestData(document, "setup")) return;
 
     String ssid = document["ssid"] | "";
     String password = document["password"] | "";
@@ -150,59 +188,28 @@ void LocalNetwork::handleSetup() {
 
     if (ssid.length() == 0 || password.length() == 0 || appId.length() == 0) {
         Serial.println("[LocalNetwork] Error: Missing data on setup. SSID: " + ssid + ", Password: " + password + ", App ID: " + appId);
-        server.send(400, "application/json", "{\"error\": \"Missing Data\"}");
+        sendWebSocketResponse(num, "{\"error\": \"Missing Data\"}");
         return;
     }
 
     Serial.println("[LocalNetwork] Received data on setup: SSID: " + ssid + ", Password: " + password + ", App ID: " + appId);
-
-    // Test WiFi connection before saving credentials
-    // Serial.print("[LocalNetwork] Testing WiFi connection");
-    // WiFi.begin(ssid, password);
     
-    // unsigned long startTime = millis();
-    // const unsigned long timeout = 30 * 1000;
-    
-    // while (WiFi.status() != WL_CONNECTED && millis() - startTime < timeout) {
-    //     delay(500);
-    //     Serial.print(".");
-    // }
-    
-    // if (WiFi.status() != WL_CONNECTED) {
-    //     Serial.println("\n[LocalNetwork] Error: Failed to connect to WiFi network");
-    //     WiFi.disconnect();
-    //     server.send(400, "application/json", "{\"error\": \"Failed to connect to WiFi network. Verify credentials and try again.\"}");
-    //     return;
-    // }
-    
-    // Serial.println("\n[LocalNetwork] WiFi connection test successful");
-    // WiFi.disconnect();
- 
-    // // Delay to allow the server to send the response
-    // delay(5000);
-    
-    server.send(200, "application/json", "{\"status\": \"OK\"}");
-
+    sendWebSocketResponse(num, "{\"status\": \"OK\"}");
     Memory::write(ssid, password, appId);
 }
 
-void LocalNetwork::handleResetFactory() {
-    JsonDocument document;
-    if (!checkRequestData(document, "reset factory")) return;
-
+void LocalNetwork::handleResetFactoryMessage(uint8_t num, JsonDocument& document) {
     if (Utils::verifyRequest(document)) {
-        server.send(200, "application/json", "{\"status\": \"OK\"}");
+        sendWebSocketResponse(num, "{\"status\": \"OK\"}");
         KiLL::resetToFactorySettings();
     } else {
-        server.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
+        sendWebSocketResponse(num, "{\"error\": \"Missing authentication\"}");
     }
 }
 
-void LocalNetwork::handleCommand() {
-    JsonDocument document;
-    if (!checkRequestData(document, "command")) return;
+void LocalNetwork::handleCommandMessage(uint8_t num, JsonDocument& document) {
     if (!Utils::verifyRequest(document)) {
-        server.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
+        sendWebSocketResponse(num, "{\"error\": \"Missing authentication\"}");
         return;
     }
 
@@ -219,7 +226,7 @@ void LocalNetwork::handleCommand() {
         
         if (temperature < boiler.getMinimumTemperature() || temperature > KiLL::MAXIMUM_TEMPERATURE) {
             Serial.println("Error temperature " + String(temperature));
-            server.send(400, "application/json", "{\"error\": \"Temperature " + String(temperature) + " out of range\"}");
+            sendWebSocketResponse(num, "{\"error\": \"Temperature " + String(temperature) + " out of range\"}");
             return;
         }
 
@@ -227,22 +234,21 @@ void LocalNetwork::handleCommand() {
         display.updateTargetTemperature(temperature);
     }
 
-    server.send(200, "application/json", "{\"status\": \"OK\"}");
+    sendWebSocketResponse(num, "{\"status\": \"OK\"}");
 }
 
-void LocalNetwork::handleStatus() {
-    JsonDocument document;
-    if (!checkRequestData(document, "command")) return;
+void LocalNetwork::handleStatusMessage(uint8_t num, JsonDocument& document) {
     if (!Utils::verifyRequest(document)) {
-        server.send(400, "application/json", "{\"error\": \"Missing authentication\"}");
+        sendWebSocketResponse(num, "{\"error\": \"Missing authentication\"}");
         return;
     }
 
-    server.send(200, "application/json", 
-    "{\"targetTemperature\": " + String(boiler.getTargetTemperature()) + 
-    ", \"currentTemperature\": " + String(boiler.getCurrentTemperature()) + 
-    ", \"isOn\": " + String(boiler.getIsOn()) + 
-    ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\", " +
-    "\"minimumTemperature\": " + String(boiler.getMinimumTemperature()) + 
-    "}");
+    String response = "{\"targetTemperature\": " + String(boiler.getTargetTemperature()) + 
+        ", \"currentTemperature\": " + String(boiler.getCurrentTemperature()) + 
+        ", \"isOn\": " + String(boiler.getIsOn()) + 
+        ", \"localIP\": \"" + (WiFi.status() != WL_CONNECTED ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "\", " +
+        "\"minimumTemperature\": " + String(boiler.getMinimumTemperature()) + 
+        "}";
+    
+    sendWebSocketResponse(num, response);
 }

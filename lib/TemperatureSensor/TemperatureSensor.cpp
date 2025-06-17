@@ -18,7 +18,7 @@ double TemperatureSensor::getVCC() {
 }
 
 double TemperatureSensor::readTemperature(uint8_t channel) {
-    int16_t rawADC = ads->readADC_SingleEnded(channel);
+    int16_t rawADC = random(0, 32767); //ads->readADC_SingleEnded(channel);
     
     double vOut = (rawADC * 0.256) / 32767.0;
     double R_PT100 = (-vOut * R_FIXED) / (vOut - 3.3);
