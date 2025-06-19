@@ -28,15 +28,11 @@ public:
     const String getHostname();
 
 private:
-    /// @brief Maximum number of MDNS retries
     static constexpr uint8_t MAX_MDNS_RETRIES = 10;
-    /// @brief WebSocket port
     static constexpr uint8_t WEBSOCKET_PORT = 81;
     
-    /// @brief Local WebSocket server instance
     WebSocketsServer webSocketServer;
 
-    /// @brief Local network SSID
     const String SSID();
 
     static void onStationConnected(WiFiEvent_t event, WiFiEventInfo_t info);
