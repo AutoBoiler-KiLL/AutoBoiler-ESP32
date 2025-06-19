@@ -18,6 +18,7 @@ double TemperatureSensor::getVCC() {
 }
 
 double TemperatureSensor::readTemperature(uint8_t channel) {
+    // TODO: Remove the comments when using the real sensor
     // int16_t rawADC = ads->readADC_SingleEnded(channel);
     
     // double vOut = (rawADC * 0.256) / 32767.0;

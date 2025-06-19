@@ -75,7 +75,7 @@ void LocalNetwork::setupServer() {
 
 void LocalNetwork::startServer() {
     webSocketServer.begin();
-    Serial.println("[LocalNetwork] WebSocket server started at " + getHostname());
+    Serial.println("[LocalNetwork] WebSocket server in dual core started at " + getHostname());
     
     // Create task on Core 1
     xTaskCreatePinnedToCore(
@@ -103,7 +103,7 @@ void LocalNetwork::webSocketTask(void* parameter) {
     
     while (true) {
         localNetwork->webSocketServer.loop();
-        vTaskDelay(1 / portTICK_PERIOD_MS); // Small delay to prevent watchdog issues
+        vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
 
