@@ -1,4 +1,4 @@
-# SmartBoiler ESP32
+# AutoBoiler ESP32
 
 ## Features
 
@@ -13,7 +13,7 @@
 ## Project Structure
 
 ```
-SmartBoiler-ESP32/
+AutoBoiler-ESP32/
 ├── lib/                    # Library modules
 │   ├── Boiler/             # Boiler control logic
 │   ├── Display/            # Display interface
