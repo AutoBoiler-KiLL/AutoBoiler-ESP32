@@ -1,17 +1,17 @@
 #include <Arduino.h>
 #include <KiLL.h>
 
-KiLL smartBoiler;
+KiLL autoBoiler;
 
 void setup() {
   Serial.begin(115200);
-  smartBoiler.setup();
+  autoBoiler.setup();
 }
 
 void loop() {
-  smartBoiler.keepServersAlive();
-  smartBoiler.tryToReconnectToWifi();
+  autoBoiler.keepServersAlive();
+  autoBoiler.tryToReconnectToWifi();
   
-  smartBoiler.checkUserInteraction();
-  smartBoiler.controlTemperature();
+  autoBoiler.checkUserInteraction();
+  autoBoiler.controlTemperature();
 }
